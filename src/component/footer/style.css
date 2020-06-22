@@ -1,0 +1,11 @@
+.footercom{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 3px solid black;
+    background: #660101;
+    color: #FFFFFF;
+    
+  }

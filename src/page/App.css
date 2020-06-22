@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt&display=swap');
+.App {
+  background-color: green;
+  font-family: 'Prompt', sans-serif;
+  font-style: normal;
+  display: grid;
+  height: 100vh;
+  width: 100vw;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  grid-template-columns: 15vw auto;
+  grid-template-rows: 100px auto 100px;
+  grid-gap: 0px;
+  color: #000;
+  
+}
+.App-header {
+  grid-area: header;
+  width: 100vw;
+  height: 100px;
+  
+}
+
+
+
+.side-bar{
+  grid-area: sidebar;
+  width: 15vw;  
+}
+
+
+
+.main{
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  align-items: center;
+  text-align: center;
+  max-width: 85vw;
+}
+.footer{
+  width: 100vw;
+  height: 100px;
+  grid-area: footer;
+}
+
+.head-main{
+  font-size: 35px;
+}
+
+.table-show{
+  width: 96%;
+  min-height: 55vh;
+  display: flex;
+  border: 1px solid black;
+  border-radius: 5px;
+}

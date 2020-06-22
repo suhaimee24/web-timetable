@@ -1,0 +1,8 @@
+.displayflex-colume{
+    display: flex;
+    flex-direction: column;
+}
+.editable-row .ant-form-explain {
+    font-size: 12px;
+    margin-top: -4px;
+  }
