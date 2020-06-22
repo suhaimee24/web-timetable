@@ -11,10 +11,10 @@ export default class sidebar extends Component {
                     <div class="bottom-sidebar">กลุ่มในสาขาวิชา</div>
                 </Link>
                 <Link to='/curriculum'>
-                    <div class="bottom-sidebar">วิชาในสาขาวิชา</div>
+                    <div class="bottom-sidebar">แผนการเรียน</div>
                 </Link>
                 <Link to='/subject_section'>
-                    <div class="bottom-sidebar">รายละเอียดวิชา</div>
+                    <div class="bottom-sidebar">วิชาที่เปิดรับ</div>
                 </Link>
                 <Link to='/timetable'>
                     <div class="bottom-sidebar">ตารางสอน</div>

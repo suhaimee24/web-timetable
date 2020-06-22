@@ -256,6 +256,18 @@ class EditableTable extends React.Component {
     return (
       <EditableContext.Provider value={this.props.form}>
         <div className="displatflex-colume">
+          <div style={{ display: 'flex','margin':'5px'}}>
+            <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ปีการศึกษา</div>
+            <Select defaultValue='2020'>
+              <Option value='2020'>2020</Option>
+              <Option value='2019'>2019</Option>
+            </Select>
+            <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>สาขาวิชา</div>
+            <Select defaultValue='all' >
+              <Option value='all'>ทั้งหมด</Option>
+            </Select>
+            <Button style={{ 'margin-right': '10px', 'margin-left': '10px', background: '#C4C4C4', color: '#000000' }}>ค้นหา</Button>
+          </div>
           <Table
             components={components}
             bordered
