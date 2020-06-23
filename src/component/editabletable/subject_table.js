@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, TimePicker } from 'antd';
+import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, TimePicker, Icon } from 'antd';
 import './style.css';
 import { render } from '@testing-library/react';
 const { Option } = Select;
@@ -71,10 +71,10 @@ class EditableCell extends Component {
 
     getInput = () => {
         if (this.props.inputType === 'number') {
-            return <InputNumber />;
+            return <InputNumber style={{ width: '100%' }} />;
         }
         if (this.props.inputType === 'text') {
-            return <Input />;
+            return <Input style={{ width: '100%' }} />;
         }
         if (this.props.inputType === 'select') {
             return <Select style={{ width: '100%' }} >{
@@ -139,53 +139,68 @@ class EditableTable extends React.Component {
                 dataIndex: 'subject_id',
                 editable: true,
                 inputType: 'text',
-
+                width: 120,
             },
             {
                 title: 'ชื่อวิชา',
                 dataIndex: 'subject_name',
                 editable: true,
                 inputType: 'text',
+                width: 300,
             },
             {
                 title: 'กลุ่มวิชา',
                 dataIndex: 'subject_section',
                 editable: true,
                 inputType: 'text',
+                width: 80,
+                align: 'center',
             },
             {
                 title: 'จำนวนชั่วโมง',
                 dataIndex: 'teach_hr',
                 editable: true,
                 inputType: 'number',
+                width: 100,
+                align: 'right',
             },
             {
                 title: 'จำนวนที่รับ',
                 dataIndex: 'subject_section_student_amount',
                 editable: true,
                 inputType: 'number',
+                width: 90,
+                align: 'right',
             },
             {
                 title: 'วันที่สอน',
                 dataIndex: 'teach_day',
                 editable: true,
                 inputType: 'select',
+                width: 90,
+                align: 'right',
             },
             {
                 title: 'เวลาเริ่ม',
                 dataIndex: 'teach_time',
                 editable: true,
                 inputType: 'text',
+                width: 90,
+                align: 'right',
             },
             {
                 title: 'เวลาสิ้นสุด',
                 dataIndex: 'teach_time2',
                 editable: true,
                 inputType: 'text',
+                width: 90,
+                align: 'right',
             },
             {
                 title: 'action',
                 dataIndex: 'action',
+                width: 120,
+                align: 'center',
                 render: (text, record) => {
                     const { editingKey } = this.state;
                     const editable = this.isEditing(record);
@@ -193,25 +208,25 @@ class EditableTable extends React.Component {
                         <span>
                             <EditableContext.Consumer>
                                 {form => (
-                                    <a
+                                    <Button
                                         onClick={() => this.save(form, record.key)}
                                         style={{ marginRight: 8 }}
                                     >
-                                        Save
-                                    </a>
+                                        <Icon type='save'/>
+                                    </Button>
                                 )}
                             </EditableContext.Consumer>
 
-                            <a onClick={() => this.cancel(record.key)}>Cancel</a>
+                            <Button onClick={() => this.cancel(record.key)}><Icon type='stop'/></Button>
 
                         </span>
                     ) : (
                             <span>
-                                <a disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 8 }}>
-                                    Edit
-                                </a>
+                                <Button disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 8 }}>
+                                    <Icon type='edit'/>
+                                </Button>
                                 <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
-                                    <a disabled={editingKey !== ''}>Delete</a>
+                                    <Button disabled={editingKey !== ''}><Icon type='delete'/></Button>
                                 </Popconfirm>
                             </span>
                         );
@@ -312,15 +327,16 @@ class EditableTable extends React.Component {
         return (
             <EditableContext.Provider value={this.props.form}>
                 <div className="displatflex-colume">
-                    <div style={{display: 'flex','margin':'5px'}}>
+                    <div style={{ display: 'flex', 'margin': '5px' }}>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ปีการศึกษา</div>
-                        <Select defaultValue='2020'>
+                        <Select defaultValue='2020' style={{width:90}}>
                             <Option value='2020'>2020</Option>
                             <Option value='2019'>2019</Option>
                         </Select>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ภาคการศึกษา</div>
-                        <Select defaultValue='1' >
+                        <Select defaultValue='1' style={{width:50}}>
                             <Option value='1'>1</Option>
+                            <Option value='2'>2</Option>
                         </Select>
                         <Button style={{ 'margin-right': '10px', 'margin-left': '10px', background: '#C4C4C4', color: '#000000' }}>ค้นหา</Button>
                     </div>
@@ -337,7 +353,6 @@ class EditableTable extends React.Component {
                             onChange: this.onChange,
 
                         }}
-                        scroll={{ y: '100%' }}
                         size="small"
                     />
                     <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }} disabled={this.state.editingKey !== ''}>

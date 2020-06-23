@@ -41,14 +41,16 @@
   text-align: center;
   max-width: 85vw;
 }
+
+.head-main{
+  margin-left: -17%;
+  font-size: 35px;
+}
+
 .footer{
   width: 100vw;
   height: 100px;
   grid-area: footer;
-}
-
-.head-main{
-  font-size: 35px;
 }
 
 .table-show{

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table, Input, InputNumber, Popconfirm, Form, Button, Select } from 'antd';
+import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, Icon } from 'antd';
 import './style.css';
 import { render } from '@testing-library/react';
 const { Option } = Select;
@@ -53,10 +53,10 @@ class EditableCell extends Component {
 
   getInput = () => {
     if (this.props.inputType === 'number') {
-      return <InputNumber />;
+      return <InputNumber style={{ width: '100%' }} />;
     }
     if (this.props.inputType === 'text') {
-      return <Input />;
+      return <Input style={{ width: '100%' }} />;
     }
     if (this.props.inputType === 'select') {
       return <Select style={{ width: '100%' }} >{
@@ -116,23 +116,29 @@ class EditableTable extends React.Component {
         dataIndex: 'name',
         editable: true,
         inputType: 'select',
-
+        width: 300,
       },
       {
         title: 'section',
         dataIndex: 'curr2_section',
         editable: true,
         inputType: 'text',
+        width: 100,
+        align:'center',
       },
       {
         title: 'จำนวนวนักศึกษา',
         dataIndex: 'curr2_section_student_amount',
         editable: true,
         inputType: 'number',
+        width: 120,
+        align:'right',
       },
       {
         title: 'action',
         dataIndex: 'action',
+        width: 120,
+        align:'center',
         render: (text, record) => {
           const { editingKey } = this.state;
           const editable = this.isEditing(record);
@@ -140,25 +146,25 @@ class EditableTable extends React.Component {
             <span>
               <EditableContext.Consumer>
                 {form => (
-                  <a
+                  <Button
                     onClick={() => this.save(form, record.key)}
-                    style={{ marginRight: 8 }}
+                    style={{ marginRight: 5 }}
                   >
-                    Save
-                  </a>
+                    <Icon type='save' />
+                  </Button>
                 )}
               </EditableContext.Consumer>
 
-              <a onClick={() => this.cancel(record.key)}>Cancel</a>
+              <Button onClick={() => this.cancel(record.key)}><Icon type='stop' /></Button>
 
             </span>
           ) : (
               <span>
-                <a disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 8 }}>
-                  Edit
-            </a>
+                <Button disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 5 }}>
+                  <Icon type='edit'/>
+                </Button>
                 <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
-                  <a disabled={editingKey !== ''}>Delete</a>
+                  <Button disabled={editingKey !== ''}><Icon type='delete'/></Button>
                 </Popconfirm>
               </span>
             );
@@ -256,34 +262,36 @@ class EditableTable extends React.Component {
     return (
       <EditableContext.Provider value={this.props.form}>
         <div className="displatflex-colume">
-          <div style={{ display: 'flex','margin':'5px'}}>
-            <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ปีการศึกษา</div>
-            <Select defaultValue='2020'>
+          <div style={{ display: 'flex', 'margin': '5px' }}>
+            <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>พ.ศ.</div>
+            <Select defaultValue='2020' style={{ width: 90, }}>
               <Option value='2020'>2020</Option>
               <Option value='2019'>2019</Option>
             </Select>
             <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>สาขาวิชา</div>
-            <Select defaultValue='all' >
+            <Select defaultValue='all' style={{ width:200,}}>
               <Option value='all'>ทั้งหมด</Option>
             </Select>
             <Button style={{ 'margin-right': '10px', 'margin-left': '10px', background: '#C4C4C4', color: '#000000' }}>ค้นหา</Button>
           </div>
-          <Table
-            components={components}
-            bordered
-            dataSource={this.state.data}
-            columns={columns}
-            rowClassName="editable-row"
-            pagination={{
-              pageSize: number_of_item,
-              current: this.state.current,
-              disabled: this.state.editingKey !== '',
-              onChange: this.onChange,
+          <div>
+            <Table
+              components={components}
+              bordered
+              dataSource={this.state.data}
+              columns={columns}
+              rowClassName="editable-row"
+              pagination={{
+                pageSize: number_of_item,
+                current: this.state.current,
+                disabled: this.state.editingKey !== '',
+                onChange: this.onChange,
 
-            }}
-            scroll={{ y: '100%' }}
-            size="small"
-          />
+              }}
+
+              size="small"
+            />
+          </div>
           <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }} disabled={this.state.editingKey !== ''}>
             Add Data
         </Button>
