@@ -109,7 +109,7 @@ let number_of_item = 8;
 class EditableTable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { data, editingKey: '', count: 3, current: 1 };
+    this.state = { data, editingKey: '', count: 3, current: 1, apiResponse: '' };
     this.columns = [
       {
         title: 'สาขาวิขา',
@@ -124,7 +124,7 @@ class EditableTable extends React.Component {
         editable: true,
         inputType: 'text',
         width: 100,
-        align:'center',
+        align: 'center',
       },
       {
         title: 'จำนวนวนักศึกษา',
@@ -132,13 +132,13 @@ class EditableTable extends React.Component {
         editable: true,
         inputType: 'number',
         width: 120,
-        align:'right',
+        align: 'right',
       },
       {
         title: 'action',
         dataIndex: 'action',
         width: 120,
-        align:'center',
+        align: 'center',
         render: (text, record) => {
           const { editingKey } = this.state;
           const editable = this.isEditing(record);
@@ -161,10 +161,10 @@ class EditableTable extends React.Component {
           ) : (
               <span>
                 <Button disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 5 }}>
-                  <Icon type='edit'/>
+                  <Icon type='edit' />
                 </Button>
                 <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
-                  <Button disabled={editingKey !== ''}><Icon type='delete'/></Button>
+                  <Button disabled={editingKey !== ''}><Icon type='delete' /></Button>
                 </Popconfirm>
               </span>
             );
@@ -174,6 +174,17 @@ class EditableTable extends React.Component {
   }
 
   isEditing = record => record.key === this.state.editingKey;
+
+  componentWillMount() {
+    this.callAPI();
+    console.log(this.state.apiResponse)
+  }
+
+  callAPI() {
+    fetch("http://localhost:9000/API/curriculum2_section")
+      .then(res => res.text())
+      .then(res => this.setState({ apiResponse: res }));
+  }
 
   cancel = () => {
     this.setState({ editingKey: '' });
@@ -269,7 +280,7 @@ class EditableTable extends React.Component {
               <Option value='2019'>2019</Option>
             </Select>
             <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>สาขาวิชา</div>
-            <Select defaultValue='all' style={{ width:200,}}>
+            <Select defaultValue='all' style={{ width: 200, }}>
               <Option value='all'>ทั้งหมด</Option>
             </Select>
             <Button style={{ 'margin-right': '10px', 'margin-left': '10px', background: '#C4C4C4', color: '#000000' }}>ค้นหา</Button>

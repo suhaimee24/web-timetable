@@ -197,6 +197,22 @@ class EditableTable extends React.Component {
                 align: 'right',
             },
             {
+                title: 'ทฤษฎี-ปฏิบัติ',
+                dataIndex: 'lect_or_prac',
+                editable: true,
+                inputType: 'text',
+                width: 100,
+                align: 'center',
+            },
+            {
+                title: 'break_time',
+                dataIndex: 'break_time',
+                editable: true,
+                inputType: 'text',
+                width: 100,
+                align: 'center',
+            },
+            {
                 title: 'action',
                 dataIndex: 'action',
                 width: 120,

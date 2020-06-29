@@ -25,6 +25,8 @@ const data = [
 
 ];
 
+
+
 const EditableContext = React.createContext();
 
 class EditableCell extends Component {
@@ -244,7 +246,7 @@ class EditableTable extends React.Component {
                             <Option value='2019'>2019</Option>
                         </Select>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ภาคการศึกษา</div>
-                        <Select defaultValue='all' style={{ width:50,}}>
+                        <Select defaultValue='all' style={{ width:100,}}>
                             <Option value='all'>ทั้งหมด</Option>
                             <Option value='1'>1</Option>
                             <Option value='2'>2</Option>
