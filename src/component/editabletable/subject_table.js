@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, TimePicker, Icon } from 'antd';
 import './style.css';
-import { render } from '@testing-library/react';
 const { Option } = Select;
 const data = [
     {
@@ -184,7 +183,7 @@ class EditableTable extends React.Component {
                 title: 'เวลาเริ่ม',
                 dataIndex: 'teach_time',
                 editable: true,
-                inputType: 'text',
+                inputType: 'time',
                 width: 90,
                 align: 'right',
             },
@@ -192,7 +191,7 @@ class EditableTable extends React.Component {
                 title: 'เวลาสิ้นสุด',
                 dataIndex: 'teach_time2',
                 editable: true,
-                inputType: 'text',
+                inputType: 'time',
                 width: 90,
                 align: 'right',
             },
@@ -279,7 +278,7 @@ class EditableTable extends React.Component {
     };
 
     handleDelete = key => {
-        const { count, data } = this.state;
+        const { data } = this.state;
         this.setState({
             data: data.filter(item => item.key !== key),
 

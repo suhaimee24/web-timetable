@@ -6,3 +6,24 @@
     font-size: 12px;
     margin-top: -4px;
   }
+
+th {
+    text-align: center;
+    
+}
+
+td {
+    text-align: center;
+}
+
+.theader{
+    height: 40px;
+    border: 1px solid #D2C1CD;
+    background-color: #C4F3A6;
+
+}
+
+.tdata{
+    height: 40px;
+    border: 1px solid #D2C1CD;
+}

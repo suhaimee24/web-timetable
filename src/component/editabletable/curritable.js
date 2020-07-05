@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, Icon } from 'antd';
 import './style.css';
-import { render } from '@testing-library/react';
+
 const { Option } = Select;
 const data = [
   {
@@ -9,41 +9,47 @@ const data = [
     curr2_section: '1',
     name: 'คอมพิวเตอร์',
     curr2_section_student_amount: 40,
-    curr2_id: '10',
+    curr2_id: '07',
   },
   {
     key: 1,
     curr2_section: '2',
     name: 'คอมพิวเตอร์',
     curr2_section_student_amount: 40,
-    curr2_id: '10',
+    curr2_id: '07',
   },
   {
     key: 2,
     curr2_section: '3',
     name: 'คอมพิวเตอร์',
     curr2_section_student_amount: 40,
-    curr2_id: '10',
+    curr2_id: '07',
   },
 
 ];
 let curri = [
   {
+    curr2_id: '07',
     name: "คอมพิวเตอร์",
   },
   {
+    curr2_id: '08',
     name: "วัดคุม",
   },
   {
+    curr2_id: '09',
     name: "อิเล็กทรอนิกส์",
   },
   {
+    curr2_id: '10',
     name: "โทรคมนาคม",
   },
   {
+    curr2_id: '11',
     name: "เคมี",
   },
   {
+    curr2_id: '12',
     name: "แมคคาทรอนิกส์",
   },
 ];
@@ -117,6 +123,7 @@ class EditableTable extends React.Component {
         editable: true,
         inputType: 'select',
         width: 300,
+        align: 'center',
       },
       {
         title: 'section',
@@ -132,7 +139,7 @@ class EditableTable extends React.Component {
         editable: true,
         inputType: 'number',
         width: 120,
-        align: 'right',
+        align: 'center',
       },
       {
         title: 'action',
@@ -177,13 +184,14 @@ class EditableTable extends React.Component {
 
   componentWillMount() {
     this.callAPI();
-    console.log(this.state.apiResponse)
+    //console.log(this.state.apiResponse)
   }
 
   callAPI() {
     fetch("http://localhost:9000/API/curriculum2_section")
-      .then(res => res.text())
-      .then(res => this.setState({ apiResponse: res }));
+      .then(res => res.json())
+      .then(res => this.setState({ apiResponse: res }))
+      .then(res => console.log(res));
   }
 
   cancel = () => {
@@ -212,7 +220,7 @@ class EditableTable extends React.Component {
   };
 
   handleDelete = key => {
-    const { count, data } = this.state;
+    const { data } = this.state;
     this.setState({
       data: data.filter(item => item.key !== key),
 
@@ -305,7 +313,8 @@ class EditableTable extends React.Component {
           </div>
           <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }} disabled={this.state.editingKey !== ''}>
             Add Data
-        </Button>
+          </Button>
+            <h1>{this.state.apiResponse  && this.state.apiResponse[0].curr2_id}</h1>
         </div>
       </EditableContext.Provider>
     );

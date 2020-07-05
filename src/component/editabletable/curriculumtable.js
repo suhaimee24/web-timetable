@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Table, Input, InputNumber, Popconfirm, Form, Button, Select, Icon } from 'antd';
 import './style.css';
-import { render } from '@testing-library/react';
+
 const { Option } = Select;
 const data = [
     {
@@ -102,7 +102,7 @@ class EditableTable extends React.Component {
                 dataIndex: 'subject_name',
                 editable: true,
                 inputType: 'text',
-               
+
             },
             {
                 title: 'ภาคการศึกษา',
@@ -110,13 +110,13 @@ class EditableTable extends React.Component {
                 editable: true,
                 inputType: 'semester',
                 width: 100,
-                align:'center',
+                align: 'center',
             },
             {
                 title: 'action',
                 dataIndex: 'action',
                 width: 120,
-                align:'center',
+                align: 'center',
                 render: (text, record) => {
                     const { editingKey } = this.state;
                     const editable = this.isEditing(record);
@@ -139,7 +139,7 @@ class EditableTable extends React.Component {
                     ) : (
                             <span>
                                 <Button disabled={editingKey !== ''} onClick={() => this.edit(record.key)} style={{ marginRight: 5 }}>
-                                    <Icon type='edit'/>
+                                    <Icon type='edit' />
                                 </Button>
                                 <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
                                     <Button disabled={editingKey !== ''}><Icon type="delete" /></Button>
@@ -179,7 +179,7 @@ class EditableTable extends React.Component {
     };
 
     handleDelete = key => {
-        const { count, data } = this.state;
+        const { data } = this.state;
         this.setState({
             data: data.filter(item => item.key !== key),
 
@@ -241,18 +241,18 @@ class EditableTable extends React.Component {
                 <div className="displatflex-colume">
                     <div style={{ display: 'flex', 'margin': '5px' }}>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>พ.ศ.</div>
-                        <Select defaultValue='2020' style={{ width:90,}}>
+                        <Select defaultValue='2020' style={{ width: 90, }}>
                             <Option value='2020'>2020</Option>
                             <Option value='2019'>2019</Option>
                         </Select>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>ภาคการศึกษา</div>
-                        <Select defaultValue='all' style={{ width:100,}}>
+                        <Select defaultValue='all' style={{ width: 100, }}>
                             <Option value='all'>ทั้งหมด</Option>
                             <Option value='1'>1</Option>
                             <Option value='2'>2</Option>
                         </Select>
                         <div style={{ fontSize: '20px', 'margin-right': '10px', 'margin-left': '10px' }}>สาขาวิชา</div>
-                        <Select defaultValue='ce' style={{ width:200,}}>
+                        <Select defaultValue='ce' style={{ width: 200, }}>
                             <Option value='ce'>วิศวกรรมคอมพิวเตอร์</Option>
                         </Select>
                         <Button style={{ 'margin-right': '10px', 'margin-left': '10px', background: '#C4C4C4', color: '#000000' }}>ค้นหา</Button>
@@ -274,7 +274,7 @@ class EditableTable extends React.Component {
                     />
                     <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }} disabled={this.state.editingKey !== ''}>
                         Add Data
-        </Button>
+                    </Button>
                 </div>
             </EditableContext.Provider>
         );
