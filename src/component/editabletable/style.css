@@ -27,3 +27,11 @@ td {
     height: 40px;
     border: 1px solid #D2C1CD;
 }
+.loadscreen{
+    width: 65vw;
+    height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
