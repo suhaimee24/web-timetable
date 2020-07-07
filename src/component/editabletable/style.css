@@ -27,11 +27,55 @@ td {
     height: 40px;
     border: 1px solid #D2C1CD;
 }
+
 .loadscreen{
     width: 65vw;
     height: 40vh;
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
+.Search_Display{
+    display: flex;
+    margin: 5px;
+    margin-top: 10px;
+}
+
+.Search_text{
+    font-size: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.Select_curri{
+    width: 260px;
+}
+
+.Select_semester{
+    width: 90px;
+    text-align: center;
+}
+
+.Input_curri{
+    width: 100px;
+}
+
+.Input_student{
+    width: 120px;
+}
+.Input_semester{
+    width: 100%;
+    text-align: center;
+}
+
+.Search_button{
+    margin-right: 10px;
+    margin-left: 10px;
+    background-color: #C4C4C4;
+    color: #000000;
+}
+.Search_button:hover {
+    background-color: #C4C4C4;
+    color: #000000;
 }

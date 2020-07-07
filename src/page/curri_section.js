@@ -3,7 +3,7 @@ import './App.css'
 import Topheader from '../component/header/header'
 import Footer from '../component/footer/footer'
 import Sidebar from '../component/sidebar/sidebar'
-import Table2 from '../component/editabletable/curritable'
+import Table from '../component/editabletable/table_curriculum2_section'
 
 export default class App extends Component {
   render() {
@@ -20,7 +20,7 @@ export default class App extends Component {
             กลุ่มในสาขาวิชา
           </header>
           <div className="table-show">
-            <Table2 />
+            <Table />
           </div>
         </main>
         <div className="footer">

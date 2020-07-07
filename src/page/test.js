@@ -3,7 +3,7 @@ import './App.css'
 import Topheader from '../component/header/header'
 import Footer from '../component/footer/footer'
 import Sidebar from '../component/sidebar/sidebar'
-import Table2 from '../component/editabletable/table'
+import Table2 from '../component/editabletable/table_subject_section'
 
 export default class App extends Component {
   render() {
@@ -13,11 +13,11 @@ export default class App extends Component {
           <Topheader />
         </div>
         <div className="side-bar">
-          <Sidebar/>
+          <Sidebar />
         </div>
         <main className="main">
           <header className="head-main">
-            กลุ่มในสาขาวิชา
+            วิชาที่เปิดรับ
           </header>
           <div className="table-show">
             <Table2 />
