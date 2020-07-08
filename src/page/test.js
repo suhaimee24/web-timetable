@@ -17,7 +17,7 @@ export default class App extends Component {
         </div>
         <main className="main">
           <header className="head-main">
-            วิชาที่เปิดรับ
+          จัดตารางสอน
           </header>
           <div className="table-show">
             <Table2 />

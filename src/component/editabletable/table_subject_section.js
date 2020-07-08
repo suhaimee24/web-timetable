@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Input, Popconfirm, Button, Spin, Select } from 'antd';
+import { Input, Popconfirm, Button, Spin, Select, TimePicker } from 'antd';
 import axios from 'axios'
 import './style.css';
+import moment from 'moment';
 
 
 const { Option } = Select;
@@ -21,10 +22,52 @@ const columns = [
         width: 300
     },
     {
-        title: 'ภาคการศึกษา',
-        dataIndex: 'semester',
-        key: 'semester',
+        title: 'กลุ่มวิชา',
+        dataIndex: 'subject_section',
+        key: 'subject_section',
+        width: 70
+    },
+    {
+        title: 'จำนวนชั่วโมง',
+        dataIndex: 'teach_hr',
+        key: 'teach_hr',
+        width: 90
+    },
+    {
+        title: 'จำนวนที่รับ',
+        dataIndex: 'subject_section_student_amount',
+        key: 'subject_section_student_amount',
+        width: 90
+    },
+    {
+        title: 'วันที่สอน',
+        dataIndex: 'teach_day',
+        key: 'teach_day',
         width: 100
+    },
+    {
+        title: 'เวลาเริ่ม',
+        dataIndex: 'teach_time',
+        key: 'teach_time',
+        width: 90
+    },
+    {
+        title: 'เวลาสิ้นสุด',
+        dataIndex: 'teach_time2',
+        key: 'teach_time2',
+        width: 90
+    },
+    {
+        title: 'ทฤษฎี-ปฏิบัติ',
+        dataIndex: 'lect_or_prac',
+        key: 'lect_or_prac',
+        width: 90
+    },
+    {
+        title: 'break_time',
+        dataIndex: 'break_time',
+        key: 'break_time',
+        width: 90
     },
     {
         title: 'Action',
@@ -33,34 +76,13 @@ const columns = [
     },
 ];
 
-let curritest = [
-    {
-        curr2_id: '07',
-        curr2_tname: "คอมพิวเตอร์",
-    },
-    {
-        curr2_id: '08',
-        curr2_tname: "วัดคุม",
-    },
-    {
-        curr2_id: '09',
-        curr2_tname: "อิเล็กทรอนิกส์",
-    },
-    {
-        curr2_id: '10',
-        curr2_tname: "โทรคมนาคม",
-    },
-    {
-        curr2_id: '11',
-        curr2_tname: "เคมี",
-    },
-    {
-        curr2_id: '12',
-        curr2_tname: "แมคคาทรอนิกส์",
-    },
-];
+
 
 const subjecttest = [
+    {
+        subject_id: '01000002',
+        subject_tname: "วิชาที่7",
+    },
     {
         subject_id: '11111111',
         subject_tname: "วิชาที่1",
@@ -85,29 +107,63 @@ const subjecttest = [
         subject_id: '66666666',
         subject_tname: "วิชาที่6",
     },
-    {
-        subject_id: '01000002',
-        subject_tname: "วิชาที่7",
-    },
 ];
+
+const daytest = [
+    {
+        day_id: 'mon',
+        day_name: "จันทร์",
+    },
+    {
+        day_id: 'tue',
+        day_name: "อังคาร",
+    },
+    {
+        day_id: 'wed',
+        day_name: "พุธ",
+    },
+    {
+        day_id: 'thu',
+        day_name: "พฤหัสบดี",
+    },
+    {
+        day_id: 'fri',
+        day_name: "ศุกร์",
+    },
+    {
+        day_id: 'sat',
+        day_name: "เสาร์",
+    },
+    {
+        day_id: 'sun',
+        day_name: "อาทิตย์",
+    },
+
+];
+
 
 var datatest = [];
 let counttest = 0
-for (let i = 0; i < curritest.length; i++) {
-    for (let j = 0; j < subjecttest.length; j++) {
-        datatest.push({
-            key: counttest.toString(),
-            subject_id: subjecttest[j].subject_id,
-            subject_tname: subjecttest[j].subject_tname,
-            semester: Math.floor(Math.random() * 2) + 1,
-            curr2_id: curritest[i].curr2_id,
-        });
-        counttest++;
-    }
+for (let i = 0; i < 20; i++) {
+    let j = Math.floor(Math.random() * 6)
+    datatest.push({
+        key: i.toString(),
+        subject_id: subjecttest[j].subject_id,
+        subject_tname: subjecttest[j].subject_tname,
+        subject_section: Math.floor(Math.random() * 2) + 1,
+        teach_hr: 3,
+        subject_section_student_amount: 40,
+        teach_day: daytest[j].day_id,
+        teach_time: '09:30',
+        teach_time2: '12:30',
+        lect_or_prac: 'l',
+        break_time: 0
+    });
 }
+
+datatest = datatest.sort(function (a, b) { return a.subject_section - b.subject_section });
 datatest = datatest.sort(function (a, b) { return a.subject_id - b.subject_id });
-datatest = datatest.sort(function (a, b) { return a.curr2_id - b.curr2_id });
-let datatemp = datatest.filter(item => (item.curr2_id === "07"))
+
 
 
 
@@ -115,84 +171,101 @@ export default class table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: datatemp, alldata: datatest, count: datatest.length, editingKey: '',
-            curri: curritest, subject: subjecttest, isLoad: false, thisAddData: false,
-            search: { semester: 'all', curr2_id: '06' },
-            input: { curr2_id: '', subject_id: '', subject_tname: '', semester: '' },
+            data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
+            subject: subjecttest, day: daytest, isLoad: true, thisAddData: false,
+            search: { semester: 'all', subject_id: 'all', subject_tname: '' },
+            input: {
+                subject_id: '', subject_tname: '', subject_section: '', teach_hr: '',
+                subject_section_student_amount: '', teach_day: '', teach_time: '',
+                teach_time2: '', lect_or_prac: '', break_time: ''
+            },
         }
     }
     componentWillMount() {
-        //this.getData()
+        this.getData()
     }
 
     async getData() {
 
-        let currisub = await axios.get("http://localhost:9000/API/curriculum2_subject")
-        let resCurri = await axios.get("http://localhost:9000/API/curriculum2")
+        let SubSec = await axios.get("http://localhost:9000/API/subject_section")
         //let resSub = await axios.get("http://localhost:9000/API/curriculum2")
         let resSub = subjecttest
-        console.log(currisub.data)
-        console.log(resCurri.data)
+        console.log(SubSec.data)
+
         console.log(resSub)
         //join Table
         let resData = []
-        for (let i = 0; i < currisub.data.length; i++) {
+        for (let i = 0; i < SubSec.data.length; i++) {
             resData.push({
                 key: i.toString(),
-                subject_id: currisub.data[i].subject_id,
+                subject_id: SubSec.data[i].subject_id,
                 subject_tname: resSub.find(element => {
-                    return element.subject_id === currisub.data[i].subject_id ? 1 : ''
+                    return element.subject_id === SubSec.data[i].subject_id ? 1 : ''
                 }).subject_tname,
-                semester: currisub.data[i].semester,
-                curr2_id: currisub.data[i].curr2_id,
+                subject_section: SubSec.data[i].subject_section,
+                teach_hr: SubSec.data[i].teach_hr,
+                subject_section_student_amount: SubSec.data[i].subject_section_student_amount,
+                teach_day: SubSec.data[i].teach_day,
+                teach_time: SubSec.data[i].teach_time.substring(0, 5),
+                teach_time2: SubSec.data[i].teach_time2.substring(0, 5),
+                lect_or_prac: SubSec.data[i].lect_or_prac,
+                break_time: SubSec.data[i].break_time,
             })
         }
-        //sort data by curr2_section and curr2_id
+        //sort data by subject_section and subject_id
+        resData = resData.sort(function (a, b) { return a.subject_section - b.subject_section });
         resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
-        resData = resData.sort(function (a, b) { return a.curr2_id - b.curr2_id });
 
-        let datatemp = resData.filter(item => (item.curr2_id === "06"))
         this.setState({
-            data: datatemp, alldata: resData, count: currisub.data.length + 1,
-            curri: resCurri.data, subject: resSub,
+            data: resData, alldata: resData, count: SubSec.data.length + 1,
+            subject: resSub,
             isLoad: false
         })
     }
 
-    async AddData(curr2_id, subject_id, semester) {
+    async AddData(data) {
+        //convert to int 
+        let res = await axios.post("http://localhost:9000/API/subject_section/", {
+            "subject_id": data.subject_id,
+            "subject_section": data.subject_section,
+            "teach_hr": data.teach_hr,
+            "subject_section_student_amount": data.subject_section_student_amount,
+            "teach_day": data.teach_day,
+            "teach_time": data.teach_time,
+            "teach_time2": data.teach_time2,
+            "lect_or_prac": data.lect_or_prac,
+            "break_time": data.break_time
+        })
+        console.log(res.data);
+
+    }
+
+    async EditData(data) {
         //convert to int 
 
-        let res = await axios.post("http://localhost:9000/API/curriculum2_subject/", {
-            curr2_id: curr2_id,
-            subject_id: subject_id,
-            semester: semester
+        let res = await axios.put("http://localhost:9000/API/subject_section/", {
+            "subject_id": data.subject_id,
+            "subject_section": data.subject_section,
+            "teach_hr": data.teach_hr,
+            "subject_section_student_amount": data.subject_section_student_amount,
+            "teach_day": data.teach_day,
+            "teach_time": data.teach_time,
+            "teach_time2": data.teach_time2,
+            "lect_or_prac": data.lect_or_prac,
+            "break_time": data.break_time
         })
 
         console.log(res.data);
 
     }
 
-    async EditData(curr2_id, subject_id, semester) {
+    async DeleteData(data) {
         //convert to int 
 
-        let res = await axios.put("http://localhost:9000/API/curriculum2_subject/", {
-            curr2_id: curr2_id,
-            subject_id: subject_id,
-            semester: semester
-        })
-
-        console.log(res.data);
-
-    }
-
-    async DeleteData(curr2_id, subject_id, semester) {
-        //convert to int 
-
-        let res = await axios.delete("http://localhost:9000/API/curriculum2_subject/", {
+        let res = await axios.delete("http://localhost:9000/API/subject_section/", {
             data: {
-                curr2_id: curr2_id,
-                subject_id: subject_id,
-                semester: semester
+                "subject_id": data.subject_id,
+                "subject_section": data.subject_section
             }
         })
 
@@ -211,25 +284,66 @@ export default class table extends Component {
 
     renderTableData() {
         return this.state.data.map((data) => {
-            let { subject_id, subject_tname, semester, key } = data;//destructuring
+            let { subject_id, subject_tname, subject_section, teach_hr, subject_section_student_amount,
+                teach_day, teach_time, teach_time2, lect_or_prac, break_time, key } = data; //destructuring
+            const { input, thisAddData, day } = this.state;
             if (this.state.editingKey === key) {
                 return (
                     <tr>
                         <td className="tdata">
-                            {this.state.thisAddData ? (
+                            {thisAddData ? (
                                 <Input name="subject_id" type="text" style={{ width: 100 }}
-                                    value={this.state.input.subject_id} onChange={this.myChangeHandler}
+                                    value={input.subject_id} onChange={this.myChangeHandler}
                                 />) : (subject_id)}
                         </td>
                         <td className="tdata">
-                            {this.state.input.subject_tname}
+                            {input.subject_tname}
                         </td>
                         <td className="tdata">
-                            <Select className="Input_semester" name="select" defaultValue={semester}
-                                onChange={this.ChangeInputSemester}  >
-                                <Option className="Input_semester" value={1} > 1 </Option>
-                                <Option className="Input_semester" value={2} > 2 </Option>
+                            {thisAddData ? (
+                                <Input name="subject_section" type="number" style={{ width: 70 }}
+                                    value={input.subject_section} onChange={this.myChangeHandler}
+                                />) : (subject_section)}
+                        </td>
+                        <td className="tdata">
+                            <Input name="teach_hr" type="number" style={{ width: 80 }}
+                                value={input.teach_hr} onChange={this.myChangeHandler}
+                            />
+                        </td>
+                        <td className="tdata">
+                            <Input name="subject_section_student_amount" type="number" style={{ width: 80 }}
+                                value={input.subject_section_student_amount} onChange={this.myChangeHandler}
+                            />
+                        </td>
+                        <td className="tdata">
+                            <Select className="Input_day" name="select" defaultValue={teach_day}
+                                onChange={this.ChangeInputDay}  >
+                                {day.map((data) => {
+                                    return <Option className="Input_day" value={data.day_id}>{data.day_name}</Option>
+                                })}
                             </Select>
+                        </td>
+                        <td className="tdata">
+                            <TimePicker name="teach_time" format="HH:mm" style={{ width: 80 }} allowClear={false}
+                                defaultValue={moment(input.teach_time, 'HH:mm')} onChange={this.ChangeInputTime}
+                            />
+                        </td>
+                        <td className="tdata">
+                            <TimePicker name="teach_time2" format="HH:mm" style={{ width: 80 }} allowClear={false}
+                                defaultValue={moment(input.teach_time2, 'HH:mm')} onChange={this.ChangeInputTime2}
+                            />
+                        </td>
+                        <td className="tdata">
+                            <Select className="Input_lect_or_prac" name="select" defaultValue={lect_or_prac}
+                                onChange={this.ChangeInputLect}  >
+                                <Option className="Input_day" value='l'>ทฤษฎี</Option>
+                                <Option className="Input_day" value='p'>ปฏิบัติ</Option>
+                            </Select>
+                        </td>
+                        <td className="tdata">
+                            <Input name="break_time" type="number" style={{ width: 90 }}
+                                value={input.break_time} onChange={this.myChangeHandler}
+                            />
                         </td>
                         <td className="tdata">
                             <span>
@@ -237,7 +351,6 @@ export default class table extends Component {
                                 <Button icon='stop' onClick={() => this.Stop(data.key)} />
                             </span>
                         </td>
-
                     </tr>
                 );
             }
@@ -246,7 +359,16 @@ export default class table extends Component {
                     <tr key={key}>
                         <td className="tdata">{subject_id}</td>
                         <td className="tdata">{subject_tname}</td>
-                        <td className="tdata">{semester}</td>
+                        <td className="tdata">{subject_section}</td>
+                        <td className="tdata">{teach_hr}</td>
+                        <td className="tdata">{subject_section_student_amount}</td>
+                        <td className="tdata">{day.find(element => {
+                            return element.day_id === teach_day ? 1 : ''
+                        }).day_name}</td>
+                        <td className="tdata">{teach_time}</td>
+                        <td className="tdata">{teach_time2}</td>
+                        <td className="tdata">{lect_or_prac === 'l' ? "ทฤษฎี" : "ปฏิบัติ"}</td>
+                        <td className="tdata">{break_time}</td>
                         <td className="tdata">
                             <span>
                                 <Button icon='edit' disabled={this.state.editingKey !== ''} style={{ marginRight: 5 }}
@@ -263,22 +385,23 @@ export default class table extends Component {
     };
 
     renderSearch() {
-        const { curri, search } = this.state;
+        const { subject, search } = this.state;
         return (
             <div className="Search_Display" >
-                <div className="Search_text">สาขาวิชา</div>
-                <Select className="Select_curri" name="select" defaultValue={search.curr2_id}
-                    onChange={this.ChangeSearchCurri} disabled={this.state.editingKey !== ''}>
-                    {curri.map((data) => {
-                        return <Option value={data.curr2_id}>{data.curr2_tname}</Option>
-                    })}
-                </Select>
-                <div className="Search_text" > ภาคการศึกษา </div>
+                {/* <div className="Search_text" > ภาคการศึกษา </div>
                 <Select className="Select_semester" name="select" defaultValue={search.semester}
                     onChange={this.ChangeSearchSemester} disabled={this.state.editingKey !== ''} >
                     <Option className="Select_semester" value="all" > ทั้งหมด </Option>
                     <Option className="Select_semester" value={1} > 1 </Option>
                     <Option className="Select_semester" value={2} > 2 </Option>
+                </Select> */}
+                <div className="Search_text">วิชา</div>
+                <Select className="Select_subject" name="select" defaultValue={search.subject_id}
+                    onChange={this.ChangeSearchSubject} disabled={this.state.editingKey !== ''}>
+                    <Option value='all'>วิชาทั้งหมด</Option>
+                    {subject.map((data) => {
+                        return <Option value={data.subject_id}>{data.subject_tname}</Option>
+                    })}
                 </Select>
                 <Button className="Search_button" onClick={this.ButtonSearch}
                     disabled={this.state.editingKey !== ''}>ค้นหา</Button>
@@ -299,10 +422,16 @@ export default class table extends Component {
             this.setState({
                 editingKey: key,
                 input: {
-                    curr2_id: editData[index].curr2_id,
                     subject_id: editData[index].subject_id,
                     subject_tname: editData[index].subject_tname,
-                    semester: editData[index].semester,
+                    subject_section: editData[index].subject_section,
+                    teach_hr: editData[index].teach_hr,
+                    subject_section_student_amount: editData[index].subject_section_student_amount,
+                    teach_day: editData[index].teach_day,
+                    teach_time: editData[index].teach_time,
+                    teach_time2: editData[index].teach_time2,
+                    lect_or_prac: editData[index].lect_or_prac,
+                    break_time: editData[index].break_time,
                 },
             });
         }
@@ -310,19 +439,21 @@ export default class table extends Component {
     };
 
     Save(key) {
-        const { input, data, alldata, curri, thisAddData } = this.state;
+        const { input, data, alldata, thisAddData } = this.state;
         console.log(input)
         //ต้องกรอกให้ครบตามช่อง
-        if (input.subject_id === '' || input.subject_tname === '' || input.semester === '') {
+        if (input.subject_id === '' || input.subject_tname === '' || input.subject_section === ''
+            || input.teach_hr <= 0 || input.subject_section_student_amount <= 0 || input.teach_day === ''
+            || input.teach_time === "00:00" || input.teach_time2 === "00:00" || input.lect_or_prac === '') {
             alert("กรุณากรองให้ถูกต้อง")
             return;
         }
 
-        //เช็คว่ามีการซํ้ากันของวิชา
-        let check_subject = alldata.findIndex(item => (item.subject_id === input.subject_id && item.curr2_id === input.curr2_id))
-        let index_curri = curri.findIndex(item => (item.curr2_id === input.curr2_id))
-        if (check_subject > -1 && key !== alldata[check_subject].key) {
-            alert(`ในสาขา${curri[index_curri].curr2_tname} วิชา${alldata[check_subject].subject_tname} มีอยู่แล้วในเทอมที่ ${alldata[check_subject].semester}`);
+        //เช็คว่ามีการซํ้ากันของ Section
+        let check_section = alldata.findIndex(item => (item.subject_id === input.subject_id && item.subject_section == input.subject_section))
+        console.log(check_section)
+        if (check_section > -1 && key !== alldata[check_section].key) {
+            alert(`${alldata[check_section].subject_tname} มี Section ที่ ${alldata[check_section].subject_section} อยู่แล้ว`);
             return;
         }
 
@@ -330,20 +461,24 @@ export default class table extends Component {
         let allData = [...alldata];
         let index = newData.findIndex(item => key === item.key);
 
-        //save old data for call API
-        const oldData = newData[index].semester;
-
+        //Set data for change or Add data
         newData[index].subject_id = input.subject_id;
-        newData[index].curr2_id = input.curr2_id;
         newData[index].subject_tname = input.subject_tname;
-        newData[index].semester = input.semester;
+        newData[index].subject_section = input.subject_section;
+        newData[index].teach_hr = input.teach_hr;
+        newData[index].subject_section_student_amount = input.subject_section_student_amount;
+        newData[index].teach_day = input.teach_day;
+        newData[index].teach_time = input.teach_time;
+        newData[index].teach_time2 = input.teach_time2;
+        newData[index].lect_or_prac = input.lect_or_prac;
+        newData[index].break_time = input.break_time;
 
         // set temp Data for send to API
         let temp = newData[index]
 
         //sort data before show data
+        newData = newData.sort(function (a, b) { return a.subject_section - b.subject_section });
         newData = newData.sort(function (a, b) { return a.subject_id - b.subject_id });
-        newData = newData.sort(function (a, b) { return a.curr2_id - b.curr2_id });
 
         //check if this state is Add Data
         if (thisAddData === true) {
@@ -355,12 +490,8 @@ export default class table extends Component {
                 thisAddData: false,
             });
 
-            // //call API to Add Data
-            // this.AddData(
-            //     temp.curr2_id,
-            //     temp.subject_id,
-            //     temp.semester
-            // );
+            //call API to Add Data
+            this.AddData(temp);
         }
         //this state is Edit Data
         else {
@@ -368,9 +499,16 @@ export default class table extends Component {
             //change Data 
             let indexall = allData.findIndex(item => key === item.key);
             allData[indexall].subject_id = input.subject_id;
-            allData[indexall].curr2_id = input.curr2_id;
             allData[indexall].subject_tname = input.subject_tname;
-            allData[indexall].semester = input.semester;
+            allData[indexall].subject_section = input.subject_section;
+            allData[indexall].teach_hr = input.teach_hr;
+            allData[indexall].subject_section_student_amount = input.subject_section_student_amount;
+            allData[indexall].teach_day = input.teach_day;
+            allData[indexall].teach_time = input.teach_time;
+            allData[indexall].teach_time2 = input.teach_time2;
+            allData[indexall].lect_or_prac = input.lect_or_prac;
+            allData[indexall].break_time = input.break_time;
+
 
             this.setState({
                 editingKey: '',
@@ -380,19 +518,9 @@ export default class table extends Component {
             });
 
             // //call API to Edit Data
-            //don't have Edit API must be Delete and Add 
-            //js have a link to Object but i want a old data
-            // this.DeleteData(
-            //     temp.curr2_id,
-            //     temp.subject_id,
-            //     oldData
-            // );
+            this.EditData(temp);
 
-            // this.AddData(
-            //     temp.curr2_id,
-            //     temp.subject_id,
-            //     temp.semester
-            // );
+
         }
 
     };
@@ -421,47 +549,66 @@ export default class table extends Component {
             alldata: alldata.filter(item => item.key !== key),
         });
 
-        // //call API to Delete Data
-        // this.DeleteData(
-        //     temp.curr2_id,
-        //     temp.subject_id,
-        //     temp.semester
-        // );
+        //call API to Delete Data
+        this.DeleteData(temp);
     };
 
-
-    ChangeSearchCurri = (value) => {
+    ChangeSearchSubject = (value) => {
+        const { subject } = this.state
+        let index = subject.findIndex(item => value === item.subject_id);
         this.setState({
             search: {
                 ...this.state.search,
-                curr2_id: value,
+                subject_id: value,
+                subject_tname: subject[index].subject_tname,
             }
         })
     };
 
-    ChangeSearchSemester = (value) => {
-        this.setState({
-            search: {
-                ...this.state.search,
-                semester: value,
-            }
-        })
-    };
-
-    ChangeInputSemester = (value) => {
+    ChangeInputDay = (value) => {
         this.setState({
             input: {
                 ...this.state.input,
-                semester: value,
+                teach_day: value,
+            }
+        })
+    }
+
+    ChangeInputLect = (value) => {
+        this.setState({
+            input: {
+                ...this.state.input,
+                lect_or_prac: value,
+            }
+        })
+    }
+
+    ChangeInputTime = (time, timeString) => {
+        this.setState({
+            input: {
+                ...this.state.input,
+                teach_time: timeString,
+            }
+        })
+
+    }
+
+    ChangeInputTime2 = (time, timeString) => {
+        this.setState({
+            input: {
+                ...this.state.input,
+                teach_time2: timeString,
             }
         })
     }
 
     myChangeHandler = (event) => {
+        const { input } = this.state;
         let name = event.target.name;
         let value = event.target.value;
-        let subject_tname = ''
+        let subject_tname = input.subject_tname
         if (name === "subject_id") {
+            subject_tname = ''
             if (value.length > 8) {
                 alert("รหัสวิชาไม่เกิน 8 หลัก");
                 return;
@@ -475,6 +622,12 @@ export default class table extends Component {
                 else {
                     subject_tname = ''
                 }
+            }
+        }
+        if (name === "subject_section") {
+            if (value.length > 3) {
+                alert("Section ต้องไม่เกิน 3 หลัก");
+                return;
             }
         }
         this.setState({
@@ -491,10 +644,16 @@ export default class table extends Component {
         const { count, data, search } = this.state;
         const newData = {
             key: count.toString(),
-            subject_id: '',
-            subject_tname: '',
-            semester: search.semester === 'all' ? '' : search.semester,
-            curr2_id: search.curr2_id,
+            subject_id: search.subject_id === 'all' ? '' : search.subject_id,
+            subject_tname: search.subject_id === 'all' ? '' : search.subject_tname,
+            subject_section: '',
+            teach_hr: '',
+            subject_section_student_amount: '',
+            teach_day: '',
+            teach_time: '00:00',
+            teach_time2: '00:00',
+            lect_or_prac: '',
+            break_time: 0,
         };
         this.setState({
             data: [...data, newData],
@@ -504,8 +663,14 @@ export default class table extends Component {
             input: {
                 subject_id: newData.subject_id,
                 subject_tname: newData.subject_tname,
-                semester: newData.semester,
-                curr2_id: newData.curr2_id,
+                subject_section: newData.subject_section,
+                teach_hr: newData.teach_hr,
+                subject_section_student_amount: newData.subject_section_student_amount,
+                teach_day: newData.teach_day,
+                teach_time: newData.teach_time,
+                teach_time2: newData.teach_time2,
+                lect_or_prac: newData.lect_or_prac,
+                break_time: newData.break_time,
             },
 
         });
@@ -513,17 +678,17 @@ export default class table extends Component {
 
     ButtonSearch = () => {
         let { alldata, search } = this.state;
+        alldata = alldata.sort(function (a, b) { return a.subject_section - b.subject_section })
         alldata = alldata.sort(function (a, b) { return a.subject_id - b.subject_id })
-        alldata = alldata.sort(function (a, b) { return a.curr2_id - b.curr2_id })
         console.log(search)
-        if (search.semester === "all") {
+        if (search.subject_id === "all") {
             this.setState({
-                data: alldata.filter(item => (item.curr2_id === search.curr2_id)),
+                data: alldata
             });
         }
         else {
             this.setState({
-                data: alldata.filter(item => (item.curr2_id === search.curr2_id && item.semester === search.semester)),
+                data: alldata.filter(item => (item.subject_id === search.subject_id)),
             });
         }
     };
