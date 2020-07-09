@@ -17,8 +17,8 @@ const columns = [
     },
     {
         title: 'ชื่อวิชา',
-        dataIndex: 'subject_tname',
-        key: 'subject_tname',
+        dataIndex: 'subject_ename',
+        key: 'subject_ename',
         width: 300
     },
     {
@@ -85,31 +85,31 @@ const columns = [
 const subjecttest = [
     {
         subject_id: '01000002',
-        subject_tname: "วิชาที่7",
+        subject_ename: "วิชาที่7",
     },
     {
         subject_id: '11111111',
-        subject_tname: "วิชาที่1",
+        subject_ename: "วิชาที่1",
     },
     {
         subject_id: '22222222',
-        subject_tname: "วิชาที่2",
+        subject_ename: "วิชาที่2",
     },
     {
         subject_id: '33333333',
-        subject_tname: "วิชาที่3",
+        subject_ename: "วิชาที่3",
     },
     {
         subject_id: '44444444',
-        subject_tname: "วิชาที่4",
+        subject_ename: "วิชาที่4",
     },
     {
         subject_id: '55555555',
-        subject_tname: "วิชาที่5",
+        subject_ename: "วิชาที่5",
     },
     {
         subject_id: '66666666',
-        subject_tname: "วิชาที่6",
+        subject_ename: "วิชาที่6",
     },
 ];
 
@@ -180,7 +180,7 @@ for (let i = 0; i < 20; i++) {
     datatest.push({
         key: i.toString(),
         subject_id: subjecttest[j].subject_id,
-        subject_tname: subjecttest[j].subject_tname,
+        subject_ename: subjecttest[j].subject_ename,
         subject_section: Math.floor(Math.random() * 2) + 1,
         curr2_id: curritest[j].curr2_id,
         teach_hr: 3,
@@ -205,9 +205,9 @@ export default class table extends Component {
         this.state = {
             data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
             curri: curritest, subject: subjecttest, day: daytest, isLoad: false, thisAddData: false,
-            search: { semester: 'all', subject_id: 'all', subject_tname: '', curr2_id: 'all' },
+            search: { semester: 'all', subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             input: {
-                subject_id: '', subject_tname: '', subject_section: '', teach_hr: '',
+                subject_id: '', subject_ename: '', subject_section: '', teach_hr: '',
                 subject_section_student_amount: '', teach_day: '', teach_time: '',
                 teach_time2: '', lect_or_prac: '', break_time: ''
             },
@@ -220,7 +220,7 @@ export default class table extends Component {
     async getData() {
 
         let SubSec = await axios.get("http://localhost:9000/API/subject_section")
-        //let resSub = await axios.get("http://localhost:9000/API/curriculum2")
+        //let resSub = await axios.get("http://localhost:9000/API/subject")
         let resSub = subjecttest
         console.log(SubSec.data)
 
@@ -231,9 +231,9 @@ export default class table extends Component {
             resData.push({
                 key: i.toString(),
                 subject_id: SubSec.data[i].subject_id,
-                subject_tname: resSub.find(element => {
+                subject_ename: resSub.find(element => {
                     return element.subject_id === SubSec.data[i].subject_id ? 1 : ''
-                }).subject_tname,
+                }).subject_ename,
                 subject_section: SubSec.data[i].subject_section,
                 teach_hr: SubSec.data[i].teach_hr,
                 subject_section_student_amount: SubSec.data[i].subject_section_student_amount,
@@ -316,7 +316,7 @@ export default class table extends Component {
 
     renderTableData() {
         return this.state.data.map((data) => {
-            let { subject_id, subject_tname, subject_section, curr2_id, teach_hr, subject_section_student_amount,
+            let { subject_id, subject_ename, subject_section, curr2_id, teach_hr, subject_section_student_amount,
                 teach_day, teach_time, teach_time2, lect_or_prac, break_time, key } = data; //destructuring
             const { input, thisAddData, day ,curri} = this.state;
             if (this.state.editingKey === key) {
@@ -329,7 +329,7 @@ export default class table extends Component {
                                 />) : (subject_id)}
                         </td>
                         <td className="tdata">
-                            {input.subject_tname}
+                            {input.subject_ename}
                         </td>
                         <td className="tdata">
                             {thisAddData ? (
@@ -390,7 +390,7 @@ export default class table extends Component {
                 return (
                     <tr key={key}>
                         <td className="tdata">{subject_id}</td>
-                        <td className="tdata">{subject_tname}</td>
+                        <td className="tdata">{subject_ename}</td>
                         <td className="tdata">{subject_section}</td>
                         <td className="tdata">{curri.find(element => {
                             return element.curr2_id === curr2_id ? 1 : ''
@@ -443,7 +443,7 @@ export default class table extends Component {
                     onChange={this.ChangeSearchSubject} disabled={this.state.editingKey !== ''}>
                     <Option value='all'>วิชาทั้งหมด</Option>
                     {subject.map((data) => {
-                        return <Option value={data.subject_id}>{data.subject_tname}</Option>
+                        return <Option value={data.subject_id}>{data.subject_ename}</Option>
                     })}
                 </Select>
                 <Button className="Search_button" onClick={this.ButtonSearch}
@@ -466,7 +466,7 @@ export default class table extends Component {
                 editingKey: key,
                 input: {
                     subject_id: editData[index].subject_id,
-                    subject_tname: editData[index].subject_tname,
+                    subject_ename: editData[index].subject_ename,
                     subject_section: editData[index].subject_section,
                     teach_hr: editData[index].teach_hr,
                     subject_section_student_amount: editData[index].subject_section_student_amount,
@@ -485,7 +485,7 @@ export default class table extends Component {
         const { input, data, alldata, thisAddData } = this.state;
         console.log(input)
         //ต้องกรอกให้ครบตามช่อง
-        if (input.subject_id === '' || input.subject_tname === '' || input.subject_section === ''
+        if (input.subject_id === '' || input.subject_ename === '' || input.subject_section === ''
             || input.teach_hr <= 0 || input.subject_section_student_amount <= 0 || input.teach_day === ''
             || input.teach_time === "00:00" || input.teach_time2 === "00:00" || input.lect_or_prac === '') {
             alert("กรุณากรองให้ถูกต้อง")
@@ -496,7 +496,7 @@ export default class table extends Component {
         let check_section = alldata.findIndex(item => (item.subject_id === input.subject_id && item.subject_section == input.subject_section))
         console.log(check_section)
         if (check_section > -1 && key !== alldata[check_section].key) {
-            alert(`${alldata[check_section].subject_tname} มี Section ที่ ${alldata[check_section].subject_section} อยู่แล้ว`);
+            alert(`${alldata[check_section].subject_ename} มี Section ที่ ${alldata[check_section].subject_section} อยู่แล้ว`);
             return;
         }
 
@@ -506,7 +506,7 @@ export default class table extends Component {
 
         //Set data for change or Add data
         newData[index].subject_id = input.subject_id;
-        newData[index].subject_tname = input.subject_tname;
+        newData[index].subject_ename = input.subject_ename;
         newData[index].subject_section = input.subject_section;
         newData[index].teach_hr = input.teach_hr;
         newData[index].subject_section_student_amount = input.subject_section_student_amount;
@@ -542,7 +542,7 @@ export default class table extends Component {
             //change Data 
             let indexall = allData.findIndex(item => key === item.key);
             allData[indexall].subject_id = input.subject_id;
-            allData[indexall].subject_tname = input.subject_tname;
+            allData[indexall].subject_ename = input.subject_ename;
             allData[indexall].subject_section = input.subject_section;
             allData[indexall].teach_hr = input.teach_hr;
             allData[indexall].subject_section_student_amount = input.subject_section_student_amount;
@@ -603,7 +603,7 @@ export default class table extends Component {
             search: {
                 ...this.state.search,
                 subject_id: value,
-                subject_tname: subject[index].subject_tname,
+                subject_ename: subject[index].subject_ename,
             }
         })
     };
@@ -649,9 +649,9 @@ export default class table extends Component {
         const { input } = this.state;
         let name = event.target.name;
         let value = event.target.value;
-        let subject_tname = input.subject_tname
+        let subject_ename = input.subject_ename
         if (name === "subject_id") {
-            subject_tname = ''
+            subject_ename = ''
             if (value.length > 8) {
                 alert("รหัสวิชาไม่เกิน 8 หลัก");
                 return;
@@ -660,10 +660,10 @@ export default class table extends Component {
                 const { subject } = this.state
                 let index = subject.findIndex(item => value === item.subject_id);
                 if (index > -1) {
-                    subject_tname = subject[index].subject_tname
+                    subject_ename = subject[index].subject_ename
                 }
                 else {
-                    subject_tname = ''
+                    subject_ename = ''
                 }
             }
         }
@@ -676,7 +676,7 @@ export default class table extends Component {
         this.setState({
             input: {
                 ...this.state.input,
-                subject_tname: subject_tname,
+                subject_ename: subject_ename,
                 [name]: value,
             }
         });
@@ -688,7 +688,7 @@ export default class table extends Component {
         const newData = {
             key: count.toString(),
             subject_id: search.subject_id === 'all' ? '' : search.subject_id,
-            subject_tname: search.subject_id === 'all' ? '' : search.subject_tname,
+            subject_ename: search.subject_id === 'all' ? '' : search.subject_ename,
             subject_section: '',
             teach_hr: '',
             subject_section_student_amount: '',
@@ -705,7 +705,7 @@ export default class table extends Component {
             thisAddData: true,
             input: {
                 subject_id: newData.subject_id,
-                subject_tname: newData.subject_tname,
+                subject_ename: newData.subject_ename,
                 subject_section: newData.subject_section,
                 teach_hr: newData.teach_hr,
                 subject_section_student_amount: newData.subject_section_student_amount,

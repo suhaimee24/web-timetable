@@ -16,8 +16,8 @@ const columns = [
     },
     {
         title: 'ชื่อวิชา',
-        dataIndex: 'subject_tname',
-        key: 'subject_tname',
+        dataIndex: 'subject_ename',
+        key: 'subject_ename',
         width: 300
     },
     {
@@ -63,31 +63,31 @@ let curritest = [
 const subjecttest = [
     {
         subject_id: '11111111',
-        subject_tname: "วิชาที่1",
+        subject_ename: "วิชาที่1",
     },
     {
         subject_id: '22222222',
-        subject_tname: "วิชาที่2",
+        subject_ename: "วิชาที่2",
     },
     {
         subject_id: '33333333',
-        subject_tname: "วิชาที่3",
+        subject_ename: "วิชาที่3",
     },
     {
         subject_id: '44444444',
-        subject_tname: "วิชาที่4",
+        subject_ename: "วิชาที่4",
     },
     {
         subject_id: '55555555',
-        subject_tname: "วิชาที่5",
+        subject_ename: "วิชาที่5",
     },
     {
         subject_id: '66666666',
-        subject_tname: "วิชาที่6",
+        subject_ename: "วิชาที่6",
     },
     {
         subject_id: '01000002',
-        subject_tname: "วิชาที่7",
+        subject_ename: "วิชาที่7",
     },
 ];
 
@@ -98,7 +98,7 @@ for (let i = 0; i < curritest.length; i++) {
         datatest.push({
             key: counttest.toString(),
             subject_id: subjecttest[j].subject_id,
-            subject_tname: subjecttest[j].subject_tname,
+            subject_ename: subjecttest[j].subject_ename,
             semester: Math.floor(Math.random() * 2) + 1,
             curr2_id: curritest[i].curr2_id,
         });
@@ -118,7 +118,7 @@ export default class table extends Component {
             data: datatemp, alldata: datatest, count: datatest.length, editingKey: '',
             curri: curritest, subject: subjecttest, isLoad: true, thisAddData: false,
             search: { semester: 'all', curr2_id: '06' },
-            input: { curr2_id: '', subject_id: '', subject_tname: '', semester: '' },
+            input: { curr2_id: '', subject_id: '', subject_ename: '', semester: '' },
         }
     }
     componentWillMount() {
@@ -129,8 +129,9 @@ export default class table extends Component {
 
         let currisub = await axios.get("http://localhost:9000/API/curriculum2_subject")
         let resCurri = await axios.get("http://localhost:9000/API/curriculum2")
-        //let resSub = await axios.get("http://localhost:9000/API/curriculum2")
-        let resSub = subjecttest
+        let resSub = await axios.get("http://localhost:9000/API/subject")
+        resSub = resSub.data
+        //let resSub = subjecttest
         console.log(currisub.data)
         console.log(resCurri.data)
         console.log(resSub)
@@ -140,9 +141,9 @@ export default class table extends Component {
             resData.push({
                 key: i.toString(),
                 subject_id: currisub.data[i].subject_id,
-                subject_tname: resSub.find(element => {
+                subject_ename: resSub.find(element => {
                     return element.subject_id === currisub.data[i].subject_id ? 1 : ''
-                }).subject_tname,
+                }).subject_ename,
                 semester: currisub.data[i].semester,
                 curr2_id: currisub.data[i].curr2_id,
             })
@@ -211,7 +212,7 @@ export default class table extends Component {
 
     renderTableData() {
         return this.state.data.map((data) => {
-            let { subject_id, subject_tname, semester, key } = data;//destructuring
+            let { subject_id, subject_ename, semester, key } = data;//destructuring
             if (this.state.editingKey === key) {
                 return (
                     <tr>
@@ -222,7 +223,7 @@ export default class table extends Component {
                                 />) : (subject_id)}
                         </td>
                         <td className="tdata">
-                            {this.state.input.subject_tname}
+                            {this.state.input.subject_ename}
                         </td>
                         <td className="tdata">
                             <Select className="Input_semester" name="select" defaultValue={semester}
@@ -245,7 +246,7 @@ export default class table extends Component {
                 return (
                     <tr key={key}>
                         <td className="tdata">{subject_id}</td>
-                        <td className="tdata">{subject_tname}</td>
+                        <td className="tdata">{subject_ename}</td>
                         <td className="tdata">{semester}</td>
                         <td className="tdata">
                             <span>
@@ -301,7 +302,7 @@ export default class table extends Component {
                 input: {
                     curr2_id: editData[index].curr2_id,
                     subject_id: editData[index].subject_id,
-                    subject_tname: editData[index].subject_tname,
+                    subject_ename: editData[index].subject_ename,
                     semester: editData[index].semester,
                 },
             });
@@ -313,7 +314,7 @@ export default class table extends Component {
         const { input, data, alldata, curri, thisAddData } = this.state;
         console.log(input)
         //ต้องกรอกให้ครบตามช่อง
-        if (input.subject_id === '' || input.subject_tname === '' || input.semester === '') {
+        if (input.subject_id === '' || input.subject_ename === '' || input.semester === '') {
             alert("กรุณากรองให้ถูกต้อง")
             return;
         }
@@ -322,7 +323,7 @@ export default class table extends Component {
         let check_subject = alldata.findIndex(item => (item.subject_id === input.subject_id && item.curr2_id === input.curr2_id))
         let index_curri = curri.findIndex(item => (item.curr2_id === input.curr2_id))
         if (check_subject > -1 && key !== alldata[check_subject].key) {
-            alert(`ในสาขา${curri[index_curri].curr2_tname} วิชา${alldata[check_subject].subject_tname} มีอยู่แล้วในเทอมที่ ${alldata[check_subject].semester}`);
+            alert(`ในสาขา${curri[index_curri].curr2_tname} วิชา${alldata[check_subject].subject_ename} มีอยู่แล้วในเทอมที่ ${alldata[check_subject].semester}`);
             return;
         }
 
@@ -335,7 +336,7 @@ export default class table extends Component {
 
         newData[index].subject_id = input.subject_id;
         newData[index].curr2_id = input.curr2_id;
-        newData[index].subject_tname = input.subject_tname;
+        newData[index].subject_ename = input.subject_ename;
         newData[index].semester = input.semester;
 
         // set temp Data for send to API
@@ -369,7 +370,7 @@ export default class table extends Component {
             let indexall = allData.findIndex(item => key === item.key);
             allData[indexall].subject_id = input.subject_id;
             allData[indexall].curr2_id = input.curr2_id;
-            allData[indexall].subject_tname = input.subject_tname;
+            allData[indexall].subject_ename = input.subject_ename;
             allData[indexall].semester = input.semester;
 
             this.setState({
@@ -459,7 +460,7 @@ export default class table extends Component {
     myChangeHandler = (event) => {
         let name = event.target.name;
         let value = event.target.value;
-        let subject_tname = ''
+        let subject_ename = ''
         if (name === "subject_id") {
             if (value.length > 8) {
                 alert("รหัสวิชาไม่เกิน 8 หลัก");
@@ -469,17 +470,17 @@ export default class table extends Component {
                 const { subject } = this.state
                 let index = subject.findIndex(item => value === item.subject_id);
                 if (index > -1) {
-                    subject_tname = subject[index].subject_tname
+                    subject_ename = subject[index].subject_ename
                 }
                 else {
-                    subject_tname = ''
+                    subject_ename = ''
                 }
             }
         }
         this.setState({
             input: {
                 ...this.state.input,
-                subject_tname: subject_tname,
+                subject_ename: subject_ename,
                 [name]: value,
             }
         });
@@ -491,7 +492,7 @@ export default class table extends Component {
         const newData = {
             key: count.toString(),
             subject_id: '',
-            subject_tname: '',
+            subject_ename: '',
             semester: search.semester === 'all' ? '' : search.semester,
             curr2_id: search.curr2_id,
         };
@@ -502,7 +503,7 @@ export default class table extends Component {
             thisAddData: true,
             input: {
                 subject_id: newData.subject_id,
-                subject_tname: newData.subject_tname,
+                subject_ename: newData.subject_ename,
                 semester: newData.semester,
                 curr2_id: newData.curr2_id,
             },
