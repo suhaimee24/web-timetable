@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Input, Popconfirm, Button, Spin, Select } from 'antd';
 import axios from 'axios'
 import './style.css';
-
+import XLSX from 'xlsx'
 
 const { Option } = Select;
 
@@ -115,7 +115,7 @@ export default class table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: datatemp, alldata: datatest, count: datatest.length, editingKey: '',
+            data: datatemp, alldata: datatest, count: datatest.length, editingKey: '', token: '',
             curri: curritest, subject: subjecttest, isLoad: true, thisAddData: false,
             search: { semester: 'all', curr2_id: '06' },
             input: { curr2_id: '', subject_id: '', subject_ename: '', semester: '' },
@@ -127,9 +127,27 @@ export default class table extends Component {
 
     async getData() {
 
-        let currisub = await axios.get("http://localhost:9000/API/curriculum2_subject")
-        let resCurri = await axios.get("http://localhost:9000/API/curriculum2")
-        let resSub = await axios.get("http://localhost:9000/API/subject")
+        let token = await axios.post("http://localhost:9000/API/login", {
+            username: 'admin',
+            password: '1234'
+        })
+        token = token.data;
+
+        let currisub = await axios.get("http://localhost:9000/API/curriculum2_subject", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        let resCurri = await axios.get("http://localhost:9000/API/curriculum2", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        let resSub = await axios.get("http://localhost:9000/API/subject", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
         resSub = resSub.data
         //let resSub = subjecttest
         console.log(currisub.data)
@@ -154,7 +172,7 @@ export default class table extends Component {
 
         let datatemp = resData.filter(item => (item.curr2_id === "06"))
         this.setState({
-            data: datatemp, alldata: resData, count: currisub.data.length + 1,
+            data: datatemp, alldata: resData, count: currisub.data.length + 1, token: token,
             curri: resCurri.data, subject: resSub,
             isLoad: false
         })
@@ -167,6 +185,10 @@ export default class table extends Component {
             curr2_id: curr2_id,
             subject_id: subject_id,
             semester: semester
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
+            }
         })
 
         console.log(res.data);
@@ -180,6 +202,10 @@ export default class table extends Component {
             curr2_id: curr2_id,
             subject_id: subject_id,
             semester: semester
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
+            }
         })
 
         console.log(res.data);
@@ -194,6 +220,9 @@ export default class table extends Component {
                 curr2_id: curr2_id,
                 subject_id: subject_id,
                 semester: semester
+            },
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
             }
         })
 
@@ -528,6 +557,38 @@ export default class table extends Component {
         }
     };
 
+    ButtonExport = () => {
+        console.log("Export")
+        const { data, curri, day } = this.state
+        if (data.length === 0) {
+            alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
+            return;
+        }
+        let temp = []
+        data.forEach(item => {
+            temp.push({
+                'รหัสวิชา': item.subject_id,
+                'ชื่อวิชา': item.subject_ename,
+                'ภาคการศึกษา': item.semester,
+            })
+        })
+
+        const dataWS = XLSX.utils.json_to_sheet(temp)
+        console.log(dataWS)
+        let wscols = [
+            { wch: 15 },
+            { wch: 30 },
+            { wch: 15 },
+        ];
+        dataWS['!cols'] = wscols
+
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, dataWS)
+        XLSX.writeFile(wb, 'Curriculum_Subject.xlsx')
+
+        return;
+
+    };
     render() {
         return (
             <div>
@@ -545,6 +606,9 @@ export default class table extends Component {
                         <div>
                             <Button onClick={this.ButtonAdd} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
                                 Add Data
+                            </Button>
+                            <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                                Export
                             </Button>
                         </div>
                     </div>}

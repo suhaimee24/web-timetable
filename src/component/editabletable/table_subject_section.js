@@ -138,7 +138,10 @@ const daytest = [
         day_id: 'sun',
         day_name: "อาทิตย์",
     },
-
+    {
+        day_id: '',
+        day_name: ' ',
+    },
 ];
 
 
@@ -151,7 +154,7 @@ for (let i = 0; i < 20; i++) {
         subject_id: subjecttest[j].subject_id,
         subject_ename: subjecttest[j].subject_ename,
         subject_section: Math.floor(Math.random() * 2) + 1,
-        teach_hr: 3,
+        teach_hr: "03:00",
         subject_section_student_amount: 40,
         teach_day: daytest[j].day_id,
         teach_time: '09:30',
@@ -171,7 +174,7 @@ export default class table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
+            data: datatest, alldata: datatest, count: datatest.length, editingKey: '', token: '',
             subject: subjecttest, day: daytest, isLoad: true, thisAddData: false,
             search: { semester: 'all', subject_id: 'all', subject_ename: '' },
             input: {
@@ -186,9 +189,21 @@ export default class table extends Component {
     }
 
     async getData() {
-
-        let SubSec = await axios.get("http://localhost:9000/API/subject_section")
-        let resSub = await axios.get("http://localhost:9000/API/subject")
+        let token = await axios.post("http://localhost:9000/API/login", {
+            username: 'admin',
+            password: '1234'
+        })
+        token = token.data;
+        let SubSec = await axios.get("http://localhost:9000/API/subject_section", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        let resSub = await axios.get("http://localhost:9000/API/subject", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
         resSub = resSub.data
         //let resSub = subjecttest
         console.log(SubSec.data)
@@ -204,13 +219,13 @@ export default class table extends Component {
                     return element.subject_id === SubSec.data[i].subject_id ? 1 : ''
                 }).subject_ename,
                 subject_section: SubSec.data[i].subject_section,
-                teach_hr: SubSec.data[i].teach_hr,
-                subject_section_student_amount: SubSec.data[i].subject_section_student_amount,
-                teach_day: SubSec.data[i].teach_day,
-                teach_time: SubSec.data[i].teach_time.substring(0, 5),
-                teach_time2: SubSec.data[i].teach_time2.substring(0, 5),
-                lect_or_prac: SubSec.data[i].lect_or_prac,
-                break_time: SubSec.data[i].break_time,
+                teach_hr: SubSec.data[i].teach_hr === null ? '' : SubSec.data[i].teach_hr.substring(0, 5),
+                subject_section_student_amount: SubSec.data[i].subject_section_student_amount === null ? '' : SubSec.data[i].subject_section_student_amount,
+                teach_day: SubSec.data[i].teach_day === null ? '' : SubSec.data[i].teach_day,
+                teach_time: SubSec.data[i].teach_time === null ? '' : SubSec.data[i].teach_time.substring(0, 5),
+                teach_time2: SubSec.data[i].teach_time2 === null ? '' : SubSec.data[i].teach_time2.substring(0, 5),
+                lect_or_prac: SubSec.data[i].lect_or_prac === null ? '' : SubSec.data[i].lect_or_prac,
+                break_time: SubSec.data[i].break_time === null ? '' : SubSec.data[i].break_time,
             })
         }
         //sort data by subject_section and subject_id
@@ -218,7 +233,7 @@ export default class table extends Component {
         resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
 
         this.setState({
-            data: resData, alldata: resData, count: SubSec.data.length + 1,
+            data: resData, alldata: resData, count: SubSec.data.length + 1, token: token,
             subject: resSub,
             isLoad: false
         })
@@ -230,30 +245,38 @@ export default class table extends Component {
             "subject_id": data.subject_id,
             "subject_section": data.subject_section,
             "teach_hr": data.teach_hr,
-            "subject_section_student_amount": data.subject_section_student_amount,
+            "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
             "teach_day": data.teach_day,
             "teach_time": data.teach_time,
             "teach_time2": data.teach_time2,
             "lect_or_prac": data.lect_or_prac,
-            "break_time": data.break_time
+            "break_time": data.break_time === '' ? null : data.break_time
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
+            }
         })
         console.log(res.data);
 
     }
 
     async EditData(data) {
+        console.log('EditData', data)
         //convert to int 
-
         let res = await axios.put("http://localhost:9000/API/subject_section/", {
             "subject_id": data.subject_id,
             "subject_section": data.subject_section,
-            "teach_hr": data.teach_hr,
-            "subject_section_student_amount": data.subject_section_student_amount,
+            "teach_hr": data.teach_hr + ":00",
+            "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
             "teach_day": data.teach_day,
-            "teach_time": data.teach_time,
-            "teach_time2": data.teach_time2,
+            "teach_time": data.teach_time + ":00",
+            "teach_time2": data.teach_time2 + ":00",
             "lect_or_prac": data.lect_or_prac,
-            "break_time": data.break_time
+            "break_time": data.break_time === '' ? null : data.break_time
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
+            }
         })
 
         console.log(res.data);
@@ -267,6 +290,9 @@ export default class table extends Component {
             data: {
                 "subject_id": data.subject_id,
                 "subject_section": data.subject_section
+            },
+            headers: {
+                Authorization: 'Bearer ' + this.state.token
             }
         })
 
@@ -307,7 +333,7 @@ export default class table extends Component {
                                 />) : (subject_section)}
                         </td>
                         <td className="tdata">
-                            <Input name="teach_hr" type="number" style={{ width: 80 }}
+                            <Input name="teach_hr" type="text" style={{ width: 90 }}
                                 value={input.teach_hr} onChange={this.myChangeHandler}
                             />
                         </td>
@@ -441,12 +467,28 @@ export default class table extends Component {
 
     Save(key) {
         const { input, data, alldata, thisAddData } = this.state;
-        console.log(input)
+        console.log('Save', input)
         //ต้องกรอกให้ครบตามช่อง
-        if (input.subject_id === '' || input.subject_ename === '' || input.subject_section === ''
-            || input.teach_hr <= 0 || input.subject_section_student_amount <= 0 || input.teach_day === ''
-            || input.teach_time === "00:00" || input.teach_time2 === "00:00" || input.lect_or_prac === '') {
-            alert("กรุณากรองให้ถูกต้อง")
+        // if (input.subject_id === '' || input.subject_ename === '' || input.subject_section === ''
+        //     || input.teach_hr <= 0 || input.subject_section_student_amount <= 0 || input.teach_day === ''
+        //     || input.teach_time === "00:00" || input.teach_time2 === "00:00" || input.lect_or_prac === '') {
+        //     alert("กรุณากรองให้ถูกต้อง")
+        //     return;
+        // }
+
+        // Check time format of teach_hr
+        if (input.teach_hr.substr(2, 1) === ':') {
+            if (!input.teach_hr.match(/^\d\d:\d\d/)) {
+                alert("จำนวนชั่วโมงไม่ถูกต้อง HH:mm เช่น 03:00");
+                return;
+            }
+            if (parseInt(input.teach_hr.substr(0, 2)) >= 24 || parseInt(input.teach_hr.substr(3, 2)) >= 60) {
+                alert("จำนวนชั่วโมงไม่ถูกต้อง HH:mm เช่น 03:00");
+                return;
+            }
+        }
+        if (input.teach_hr.length < 5 || input.teach_hr.substr(2, 1) !== ':') {
+            alert("จำนวนชั่วโมงไม่ถูกต้อง HH:mm เช่น 03:00");
             return;
         }
 
@@ -557,6 +599,16 @@ export default class table extends Component {
     ChangeSearchSubject = (value) => {
         const { subject } = this.state
         let index = subject.findIndex(item => value === item.subject_id);
+        if (index === -1) {
+            this.setState({
+                search: {
+                    ...this.state.search,
+                    subject_id: value,
+                    subject_ename:'วิชาทั้งหมด'
+                }
+            })
+            return;
+        }
         this.setState({
             search: {
                 ...this.state.search,
@@ -631,6 +683,12 @@ export default class table extends Component {
                 return;
             }
         }
+        if (name === "teach_hr") {
+            if (value.length > 5) {
+                alert("จำนวนชั่วโมงไม่ถูกต้อง HH:mm เช่น 03:00");
+                return;
+            }
+        }
         this.setState({
             input: {
                 ...this.state.input,
@@ -648,7 +706,7 @@ export default class table extends Component {
             subject_id: search.subject_id === 'all' ? '' : search.subject_id,
             subject_ename: search.subject_id === 'all' ? '' : search.subject_ename,
             subject_section: '',
-            teach_hr: '',
+            teach_hr: '00:00',
             subject_section_student_amount: '',
             teach_day: '',
             teach_time: '00:00',

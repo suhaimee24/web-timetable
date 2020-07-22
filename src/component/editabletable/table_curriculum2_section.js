@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import { Input, Popconfirm, Button, Spin, Select } from 'antd';
 import axios from 'axios'
 import './style.css';
+import XLSX from 'xlsx'
 
 const { Option } = Select;
 const columns = [
   {
-    title: 'สาขาวิขา',
+    title: 'สาขาวิชา',
     dataIndex: 'name',
     key: 'name',
     width: 280
@@ -18,7 +19,7 @@ const columns = [
     width: 100
   },
   {
-    title: 'จำนวนวนักศึกษา',
+    title: 'จำนวนนักศึกษา',
     dataIndex: 'curr2_section_student_amount',
     key: 'curr2_section_student_amount',
     width: 120
@@ -77,7 +78,7 @@ export default class table extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
+      data: datatest, alldata: datatest, count: datatest.length, editingKey: '', token: '',
       curri: curritest, isLoad: true, select: 'all', thisAddData: false,
       search: { curr2_id: 'all' },
       input: { curr2_id: '', curr2_tname: '', curr2_section: '', curr2_section_student_amount: '' },
@@ -90,9 +91,23 @@ export default class table extends Component {
 
   async getData() {
 
-    let currisec = await axios.get("http://localhost:9000/API/curriculum2_section")
-    let resCurri = await axios.get("http://localhost:9000/API/curriculum2")
-
+    let token = await axios.post("http://localhost:9000/API/login", {
+      username: 'admin',
+      password: '1234'
+    })
+    token = token.data;
+    console.log(token)
+    let currisec = await axios.get("http://localhost:9000/API/curriculum2_section", {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    let resCurri = await axios.get("http://localhost:9000/API/curriculum2", {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    console.log(currisec)
 
     //join Table
     let resData = []
@@ -114,7 +129,7 @@ export default class table extends Component {
     console.log(resData)
     console.log(resCurri.data)
     this.setState({
-      data: resData, alldata: resData, count: currisec.data.length + 1,
+      data: resData, alldata: resData, count: currisec.data.length + 1, token: token,
       curri: resCurri.data,
       isLoad: false
     })
@@ -128,6 +143,10 @@ export default class table extends Component {
       curr2_id: curr2_id,
       curr2_section: curr2_section,
       curr2_section_student_amount: curr2_section_student_amount
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
     })
 
     console.log(res.data);
@@ -143,6 +162,10 @@ export default class table extends Component {
       curr2_id: curr2_id,
       curr2_section: curr2_section,
       curr2_section_student_amount: curr2_section_student_amount
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
     })
 
     console.log(res.data);
@@ -157,6 +180,9 @@ export default class table extends Component {
       data: {
         curr2_id: curr2_id,
         curr2_section: curr2_section
+      },
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
       }
     })
 
@@ -464,6 +490,41 @@ export default class table extends Component {
     }
   };
 
+  ButtonExport = () => {
+    console.log("Export")
+    const { data, curri} = this.state
+    if (data.length === 0) {
+      alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
+      return;
+  }
+    let temp = []
+    data.forEach(item => {
+      temp.push({
+        'สาขาวิชา': curri.find(element => {
+          return element.curr2_id === item.curr2_id ? 1 : ''
+        }).curr2_tname,
+        'section': item.curr2_section,
+        'จำนวนนักศึกษา': item.curr2_section_student_amount,
+      })
+    })
+
+    const dataWS = XLSX.utils.json_to_sheet(temp)
+    console.log(dataWS)
+    let wscols = [
+      { wch: 30 },
+      { wch: 13 },
+      { wch: 13 },
+    ];
+    dataWS['!cols'] = wscols
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, dataWS)
+    XLSX.writeFile(wb, 'Curriculum_Section.xlsx')
+
+    return;
+
+  };
+
   render() {
     return (
       <div>
@@ -481,6 +542,9 @@ export default class table extends Component {
             <div>
               <Button onClick={this.ButtonAdd} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
                 Add Data
+              </Button>
+              <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                Export
               </Button>
             </div>
           </div>}

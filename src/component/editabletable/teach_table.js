@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Input, Popconfirm, Button, Spin, Select, TimePicker } from 'antd';
+import { Input, Button, Spin, Select, TimePicker } from 'antd';
 import axios from 'axios'
 import './style.css';
 import moment from 'moment';
-
+import XLSX from 'xlsx'
 
 const { Option } = Select;
 
@@ -34,15 +34,9 @@ const columns = [
         width: 100
     },
     {
-        title: 'จำนวนชั่วโมง',
-        dataIndex: 'teach_hr',
-        key: 'teach_hr',
-        width: 90
-    },
-    {
-        title: 'จำนวนที่รับ',
-        dataIndex: 'subject_section_student_amount',
-        key: 'subject_section_student_amount',
+        title: 'Section',
+        dataIndex: 'curr2_section',
+        key: 'curr2_section',
         width: 90
     },
     {
@@ -75,11 +69,11 @@ const columns = [
         key: 'break_time',
         width: 90
     },
-    {
-        title: 'Action',
-        key: 'action',
-        width: 100
-    },
+    // {
+    //     title: 'Action',
+    //     key: 'action',
+    //     width: 100
+    // },
 ];
 
 const subjecttest = [
@@ -138,6 +132,10 @@ let curritest = [
         curr2_id: '12',
         curr2_tname: "แมคคาทรอนิกส์",
     },
+    {
+        curr2_id: '13',
+        curr2_tname: "แมคคาทรอนิกส์2",
+    },
 ];
 
 const daytest = [
@@ -176,20 +174,21 @@ const daytest = [
 var datatest = [];
 let counttest = 0
 for (let i = 0; i < 20; i++) {
-    let j = Math.floor(Math.random() * 6)
+    let j = Math.floor(Math.random() * 7)
     datatest.push({
         key: i.toString(),
         subject_id: subjecttest[j].subject_id,
         subject_ename: subjecttest[j].subject_ename,
         subject_section: Math.floor(Math.random() * 2) + 1,
         curr2_id: curritest[j].curr2_id,
-        teach_hr: 3,
-        subject_section_student_amount: 40,
+        curr2_section: 1,
         teach_day: daytest[j].day_id,
         teach_time: '09:30',
         teach_time2: '12:30',
         lect_or_prac: 'l',
-        break_time: 0
+        break_time: 0,
+        semester: Math.floor(Math.random() * 2) + 1,
+        year: Math.floor(Math.random() * 3) + 2018,
     });
 }
 
@@ -205,10 +204,10 @@ export default class table extends Component {
         this.state = {
             data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
             curri: curritest, subject: subjecttest, day: daytest, isLoad: false, thisAddData: false,
-            search: { semester: 'all', subject_id: 'all', subject_ename: '', curr2_id: 'all' },
+            search: { year: 2020, semester: 1, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             input: {
-                subject_id: '', subject_ename: '', subject_section: '', teach_hr: '',
-                subject_section_student_amount: '', teach_day: '', teach_time: '',
+                subject_id: '', subject_ename: '', subject_section: '', curr2_section: '',
+                teach_day: '', teach_time: '',
                 teach_time2: '', lect_or_prac: '', break_time: ''
             },
         }
@@ -316,9 +315,9 @@ export default class table extends Component {
 
     renderTableData() {
         return this.state.data.map((data) => {
-            let { subject_id, subject_ename, subject_section, curr2_id, teach_hr, subject_section_student_amount,
+            let { subject_id, subject_ename, subject_section, curr2_id, curr2_section, subject_section_student_amount,
                 teach_day, teach_time, teach_time2, lect_or_prac, break_time, key } = data; //destructuring
-            const { input, thisAddData, day ,curri} = this.state;
+            const { input, thisAddData, day, curri } = this.state;
             if (this.state.editingKey === key) {
                 return (
                     <tr>
@@ -338,13 +337,8 @@ export default class table extends Component {
                                 />) : (subject_section)}
                         </td>
                         <td className="tdata">
-                            <Input name="teach_hr" type="number" style={{ width: 80 }}
-                                value={input.teach_hr} onChange={this.myChangeHandler}
-                            />
-                        </td>
-                        <td className="tdata">
-                            <Input name="subject_section_student_amount" type="number" style={{ width: 80 }}
-                                value={input.subject_section_student_amount} onChange={this.myChangeHandler}
+                            <Input name="curr2_section" type="number" style={{ width: 80 }}
+                                value={input.curr2_section} onChange={this.myChangeHandler}
                             />
                         </td>
                         <td className="tdata">
@@ -395,8 +389,7 @@ export default class table extends Component {
                         <td className="tdata">{curri.find(element => {
                             return element.curr2_id === curr2_id ? 1 : ''
                         }).curr2_tname}</td>
-                        <td className="tdata">{teach_hr}</td>
-                        <td className="tdata">{subject_section_student_amount}</td>
+                        <td className="tdata">{curr2_section}</td>
                         <td className="tdata">{day.find(element => {
                             return element.day_id === teach_day ? 1 : ''
                         }).day_name}</td>
@@ -404,7 +397,7 @@ export default class table extends Component {
                         <td className="tdata">{teach_time2}</td>
                         <td className="tdata">{lect_or_prac === 'l' ? "ทฤษฎี" : "ปฏิบัติ"}</td>
                         <td className="tdata">{break_time}</td>
-                        <td className="tdata">
+                        {/* <td className="tdata">
                             <span>
                                 <Button icon='edit' disabled={this.state.editingKey !== ''} style={{ marginRight: 5 }}
                                     onClick={() => this.Edit(data.key)} />
@@ -412,7 +405,7 @@ export default class table extends Component {
                                     <Button disabled={this.state.editingKey !== ''} icon='delete' />
                                 </Popconfirm>
                             </span>
-                        </td>
+                        </td> */}
                     </tr>
                 );
             }
@@ -423,10 +416,16 @@ export default class table extends Component {
         const { subject, search, curri } = this.state;
         return (
             <div className="Search_Display" >
+                <div className="Search_text" > ปีการศึกษา </div>
+                <Select className="Select_semester" name="select" defaultValue={search.year}
+                    onChange={this.ChangeSearchYear} disabled={this.state.editingKey !== ''} >
+                    <Option className="Select_semester" value={2020} > 2020 </Option>
+                    <Option className="Select_semester" value={2019} > 2019 </Option>
+                    <Option className="Select_semester" value={2018} > 2018 </Option>
+                </Select>
                 <div className="Search_text" > ภาคการศึกษา </div>
                 <Select className="Select_semester" name="select" defaultValue={search.semester}
                     onChange={this.ChangeSearchSemester} disabled={this.state.editingKey !== ''} >
-                    <Option className="Select_semester" value="all" > ทั้งหมด </Option>
                     <Option className="Select_semester" value={1} > 1 </Option>
                     <Option className="Select_semester" value={2} > 2 </Option>
                 </Select>
@@ -596,16 +595,56 @@ export default class table extends Component {
         // this.DeleteData(temp);
     };
 
-    ChangeSearchSubject = (value) => {
-        const { subject } = this.state
-        let index = subject.findIndex(item => value === item.subject_id);
+    ChangeSearchYear = (value) => {
         this.setState({
             search: {
                 ...this.state.search,
-                subject_id: value,
-                subject_ename: subject[index].subject_ename,
+                year: value,
             }
         })
+    };
+
+    ChangeSearchSemester = (value) => {
+        this.setState({
+            search: {
+                ...this.state.search,
+                semester: value,
+            }
+        })
+    };
+
+    ChangeSearchCurri = (value) => {
+        this.setState({
+            search: {
+                ...this.state.search,
+                curr2_id: value,
+
+            }
+        })
+    };
+
+    ChangeSearchSubject = (value) => {
+        const { subject } = this.state
+        let index = subject.findIndex(item => value === item.subject_id);
+        if (index > -1) {
+            this.setState({
+                search: {
+                    ...this.state.search,
+                    subject_id: value,
+                    subject_ename: subject[index].subject_ename,
+                }
+            })
+        }
+        else {
+            this.setState({
+                search: {
+                    ...this.state.search,
+                    subject_id: value,
+                    subject_ename: '',
+                }
+            })
+        }
+
     };
 
     ChangeInputDay = (value) => {
@@ -721,19 +760,94 @@ export default class table extends Component {
 
     ButtonSearch = () => {
         let { alldata, search } = this.state;
+        alldata = alldata.sort(function (a, b) { return a.curr2_id - b.curr2_id })
         alldata = alldata.sort(function (a, b) { return a.subject_section - b.subject_section })
         alldata = alldata.sort(function (a, b) { return a.subject_id - b.subject_id })
         console.log(search)
+        if (search.subject_id === "all" && search.curr2_id === 'all') {
+            console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester)))
+            this.setState({
+                data: alldata.filter(item => (item.year === search.year && item.semester === search.semester)),
+            });
+            return;
+        }
         if (search.subject_id === "all") {
+            console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester
+                && item.curr2_id === search.curr2_id)))
             this.setState({
-                data: alldata
+                data: alldata.filter(item => (item.year === search.year && item.semester === search.semester
+                    && item.curr2_id === search.curr2_id)),
             });
+            return;
         }
-        else {
+        if (search.curr2_id === 'all') {
+            console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester
+                && item.subject_id === search.subject_id)))
             this.setState({
-                data: alldata.filter(item => (item.subject_id === search.subject_id)),
+                data: alldata.filter(item => (item.year === search.year && item.semester === search.semester &&
+                    item.subject_id === search.subject_id)),
             });
+            return;
         }
+        console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester
+            && item.subject_id === search.subject_id && item.curr2_id === search.curr2_id)))
+        this.setState({
+            data: alldata.filter(item => (item.year === search.year && item.semester === search.semester
+                && item.subject_id === search.subject_id && item.curr2_id === search.curr2_id)),
+        });
+        return;
+
+    };
+
+    ButtonExport = () => {
+        console.log("Export")
+        const { data, curri, day } = this.state
+        if (data.length === 0) {
+            alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
+            return;
+        }
+        let temp = []
+        data.forEach(item => {
+            temp.push({
+                'รหัสวิชา': item.subject_id,
+                'ชื่อวิชา': item.subject_ename,
+                'กลุ่มวิชา': item.subject_section,
+                'สาขาที่เรียน': curri.find(element => {
+                    return element.curr2_id === item.curr2_id ? 1 : ''
+                }).curr2_tname,
+                'Section': item.curr2_section,
+                'วันที่สอน': day.find(element => {
+                    return element.day_id === item.teach_day ? 1 : ''
+                }).day_name,
+                'เวลาเริ่ม': item.teach_time,
+                'เวลาสิ้นสุด': item.teach_time2,
+                'ทฤษฎี-ปฏิบัติ': item.lect_or_prac === 'l' ? "ทฤษฎี" : "ปฏิบัติ",
+                break_time: item.break_time,
+            })
+        })
+
+        const dataWS = XLSX.utils.json_to_sheet(temp)
+        console.log(dataWS)
+        let wscols = [
+            { wch: 15 },
+            { wch: 30 },
+            { wch: 15 },
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 }
+        ];
+        dataWS['!cols'] = wscols
+
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, dataWS)
+        XLSX.writeFile(wb, 'Teach_table.xlsx')
+
+        return;
+
     };
 
     render() {
@@ -751,8 +865,11 @@ export default class table extends Component {
                             </tbody>
                         </table>
                         <div>
-                            <Button onClick={this.ButtonAdd} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
-                                Add Data
+                            <Button onClick={this.Bu} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                                จัดตารางสอน
+                            </Button>
+                            <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                                Export
                             </Button>
                         </div>
                     </div>}
