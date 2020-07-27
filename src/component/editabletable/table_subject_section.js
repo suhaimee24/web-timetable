@@ -142,6 +142,7 @@ const daytest = [
         day_id: '',
         day_name: ' ',
     },
+    
 ];
 
 
@@ -246,9 +247,9 @@ export default class table extends Component {
             "subject_section": data.subject_section,
             "teach_hr": data.teach_hr,
             "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
-            "teach_day": data.teach_day,
-            "teach_time": data.teach_time,
-            "teach_time2": data.teach_time2,
+            "teach_day": data.teach_day === '' ? null : data.teach_day,
+            "teach_time": data.teach_time === '00:00' ? null : data.teach_time ,
+            "teach_time2": data.teach_time2 === '00:00' ? null : data.teach_time2 ,
             "lect_or_prac": data.lect_or_prac,
             "break_time": data.break_time === '' ? null : data.break_time
         }, {
@@ -268,9 +269,9 @@ export default class table extends Component {
             "subject_section": data.subject_section,
             "teach_hr": data.teach_hr + ":00",
             "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
-            "teach_day": data.teach_day,
-            "teach_time": data.teach_time + ":00",
-            "teach_time2": data.teach_time2 + ":00",
+            "teach_day": data.teach_day === '' ? null : data.teach_day,
+            "teach_time": data.teach_time === '' ? null : data.teach_time + ":00",
+            "teach_time2": data.teach_time2 === '' ? null : data.teach_time2 + ":00",
             "lect_or_prac": data.lect_or_prac,
             "break_time": data.break_time === '' ? null : data.break_time
         }, {
@@ -455,8 +456,8 @@ export default class table extends Component {
                     teach_hr: editData[index].teach_hr,
                     subject_section_student_amount: editData[index].subject_section_student_amount,
                     teach_day: editData[index].teach_day,
-                    teach_time: editData[index].teach_time,
-                    teach_time2: editData[index].teach_time2,
+                    teach_time: editData[index].teach_time === '' ? '00:00' : editData[index].teach_time,
+                    teach_time2: editData[index].teach_time2 === '' ? '00:00' : editData[index].teach_time2,
                     lect_or_prac: editData[index].lect_or_prac,
                     break_time: editData[index].break_time,
                 },
@@ -604,7 +605,7 @@ export default class table extends Component {
                 search: {
                     ...this.state.search,
                     subject_id: value,
-                    subject_ename:'วิชาทั้งหมด'
+                    subject_ename: 'วิชาทั้งหมด'
                 }
             })
             return;
@@ -712,7 +713,7 @@ export default class table extends Component {
             teach_time: '00:00',
             teach_time2: '00:00',
             lect_or_prac: '',
-            break_time: 0,
+            break_time: '',
         };
         this.setState({
             data: [...data, newData],
