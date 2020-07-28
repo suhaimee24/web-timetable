@@ -141,8 +141,7 @@ const daytest = [
     {
         day_id: '',
         day_name: ' ',
-    },
-    
+    }
 ];
 
 
@@ -225,7 +224,7 @@ export default class table extends Component {
                 teach_day: SubSec.data[i].teach_day === null ? '' : SubSec.data[i].teach_day,
                 teach_time: SubSec.data[i].teach_time === null ? '' : SubSec.data[i].teach_time.substring(0, 5),
                 teach_time2: SubSec.data[i].teach_time2 === null ? '' : SubSec.data[i].teach_time2.substring(0, 5),
-                lect_or_prac: SubSec.data[i].lect_or_prac === null ? '' : SubSec.data[i].lect_or_prac,
+                lect_or_prac: SubSec.data[i].lect_or_prac === null ? 'l' : SubSec.data[i].lect_or_prac,
                 break_time: SubSec.data[i].break_time === null ? '' : SubSec.data[i].break_time,
             })
         }
@@ -245,12 +244,12 @@ export default class table extends Component {
         let res = await axios.post("http://localhost:9000/API/subject_section/", {
             "subject_id": data.subject_id,
             "subject_section": data.subject_section,
-            "teach_hr": data.teach_hr,
+            "teach_hr": `'${data.teach_hr}:00'`,
             "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
-            "teach_day": data.teach_day === '' ? null : data.teach_day,
-            "teach_time": data.teach_time === '00:00' ? null : data.teach_time ,
-            "teach_time2": data.teach_time2 === '00:00' ? null : data.teach_time2 ,
-            "lect_or_prac": data.lect_or_prac,
+            "teach_day": data.teach_day === '' ? null : `'${data.teach_day}'`,
+            "teach_time": data.teach_time === '' ? null : `'${data.teach_time}:00'`,
+            "teach_time2": data.teach_time2 === '' ? null : `'${data.teach_time2}:00'`,
+            "lect_or_prac": data.lect_or_prac === '' ? 'l' : `'${data.lect_or_prac}'`,
             "break_time": data.break_time === '' ? null : data.break_time
         }, {
             headers: {
@@ -267,12 +266,12 @@ export default class table extends Component {
         let res = await axios.put("http://localhost:9000/API/subject_section/", {
             "subject_id": data.subject_id,
             "subject_section": data.subject_section,
-            "teach_hr": data.teach_hr + ":00",
+            "teach_hr": `'${data.teach_hr}:00'`,
             "subject_section_student_amount": data.subject_section_student_amount === '' ? null : data.subject_section_student_amount,
-            "teach_day": data.teach_day === '' ? null : data.teach_day,
-            "teach_time": data.teach_time === '' ? null : data.teach_time + ":00",
-            "teach_time2": data.teach_time2 === '' ? null : data.teach_time2 + ":00",
-            "lect_or_prac": data.lect_or_prac,
+            "teach_day": data.teach_day === '' ? null : `'${data.teach_day}'`,
+            "teach_time": data.teach_time === '' ? null : `'${data.teach_time}:00'`,
+            "teach_time2": data.teach_time2 === '' ? null : `'${data.teach_time2}:00'`,
+            "lect_or_prac": data.lect_or_prac === '' ? 'l' : `'${data.lect_or_prac}'`,
             "break_time": data.break_time === '' ? null : data.break_time
         }, {
             headers: {
@@ -512,8 +511,8 @@ export default class table extends Component {
         newData[index].teach_hr = input.teach_hr;
         newData[index].subject_section_student_amount = input.subject_section_student_amount;
         newData[index].teach_day = input.teach_day;
-        newData[index].teach_time = input.teach_time;
-        newData[index].teach_time2 = input.teach_time2;
+        newData[index].teach_time = input.teach_time === '00:00' ? '' : input.teach_time;
+        newData[index].teach_time2 = input.teach_time2 === '00:00' ? '' : input.teach_time2;
         newData[index].lect_or_prac = input.lect_or_prac;
         newData[index].break_time = input.break_time;
 
@@ -548,8 +547,8 @@ export default class table extends Component {
             allData[indexall].teach_hr = input.teach_hr;
             allData[indexall].subject_section_student_amount = input.subject_section_student_amount;
             allData[indexall].teach_day = input.teach_day;
-            allData[indexall].teach_time = input.teach_time;
-            allData[indexall].teach_time2 = input.teach_time2;
+            allData[indexall].teach_time = input.teach_time === '00:00' ? '' : input.teach_time;
+            allData[indexall].teach_time2 = input.teach_time2 === '00:00' ? '' : input.teach_time2;
             allData[indexall].lect_or_prac = input.lect_or_prac;
             allData[indexall].break_time = input.break_time;
 

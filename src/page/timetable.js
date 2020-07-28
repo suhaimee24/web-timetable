@@ -3,7 +3,7 @@ import './App.css'
 import Topheader from '../component/header/header'
 import Footer from '../component/footer/footer'
 import Sidebar from '../component/sidebar/sidebar'
-import Table from '../component/editabletable/timetable'
+import Table from '../component/editabletable/teach_table'
 
 export default class App extends Component {
   render() {

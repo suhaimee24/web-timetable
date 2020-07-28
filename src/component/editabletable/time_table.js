@@ -1,9 +1,13 @@
-const axios = require('axios');
+/* eslint-disable no-unused-expressions */
+// eslint-disable-next-line no-unused-expressions
 
+// const axios = require('axios');
+import axios from 'axios'
 //Set Global variable
 var time_CurriSec = [];
 var uniqueSubject = [];
 var StringResutl = [];
+var DataTimeTable = [];
 
 
 async function timetable() {
@@ -86,10 +90,10 @@ async function timetable() {
 
         //console.log("DataCurriSec", DataCurriSec)
         //Print DataCurriSec
-        process.stdout.write(' DataCurriSec : ')
-        DataCurriSec.forEach(item => {
-            process.stdout.write(item.curr2_section + ' ')
-        })
+        // process.stdout.write(' DataCurriSec : ')
+        // DataCurriSec.forEach(item => {
+        //     process.stdout.write(item.curr2_section + ' ')
+        // })
         console.log("")
         console.log(" SumOfStudent : ", SumOfStudent(DataCurriSec))
 
@@ -97,10 +101,10 @@ async function timetable() {
         let DataSubjectSec = SubSec.filter(item => item.subject_id === uniqueSubject[i].subject_id && item.lect_or_prac === uniqueSubject[i].lect_or_prac)
 
         //Print DataSubjectSec
-        process.stdout.write(' DataSubjectSec : ')
-        DataSubjectSec.forEach(item => {
-            process.stdout.write(item.subject_section + ' ')
-        })
+        // process.stdout.write(' DataSubjectSec : ')
+        // DataSubjectSec.forEach(item => {
+        //     process.stdout.write(item.subject_section + ' ')
+        // })
         console.log("")
 
 
@@ -153,18 +157,18 @@ async function timetable() {
                 }
 
                 if (DataSubjectSec[j].teach_time === null) {
-                    if (DataSubjectSec[j].subject_id === '01006030') {
-                        DataSubjectSec[j].teach_time = '08:45:00'
-                        DataSubjectSec[j].teach_time2 = '12:00:00'
-                        DataSubjectSec[j].teach_day = 'fri'
-                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataSubjectSec[j].subject_section === item.curr2_section))
-                        if (time_CurriSec_index > -1) {
-                            time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
-                            console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                                `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
-                        }
-                        continue
-                    }
+                    // if (DataSubjectSec[j].subject_id === '01006030') {
+                    //     DataSubjectSec[j].teach_time = '08:45:00'
+                    //     DataSubjectSec[j].teach_time2 = '12:00:00'
+                    //     DataSubjectSec[j].teach_day = 'fri'
+                    //     let time_CurriSec_index = time_CurriSec.findIndex(item => (DataSubjectSec[j].subject_section === item.curr2_section))
+                    //     if (time_CurriSec_index > -1) {
+                    //         time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
+                    //         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                    //             `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
+                    //     }
+                    //     continue
+                    // }
                     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                         `to DataNotime `)
 
@@ -175,12 +179,26 @@ async function timetable() {
                     tempSubject[0] = DataSubjectSec[j]
                     let temp = { SubjectSec: tempSubject, CurriSec: tempCurri }
                     DataNotime.push(temp)
-
                     continue
                 }
 
                 let time_CurriSec_index = time_CurriSec.findIndex(item => (DataSubjectSec[j].subject_section === item.curr2_section))
                 if (time_CurriSec_index > -1) {
+
+                    let checkOverlay = false
+                    //Check Overlay time Subject Section
+                    time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                        if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                            console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                            checkOverlay = true
+                            return;
+                        }
+                    })
+                    if (checkOverlay) {
+                        console.log(`Subject_id ${uniqueSubject[i].subject_id} Section ${DataSubjectSec[j].subject_section} Overlay`)
+                        StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} Section ${DataSubjectSec[j].subject_section} Overlay`)
+                        continue
+                    }
                     time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
                     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                         `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
@@ -243,11 +261,11 @@ async function timetable() {
             let UniqueCurri2 = UniqueCurri
             //console.log('UniqueCurri', UniqueCurri)
 
-            //Print UniqueCurri
-            process.stdout.write(' UniqueCurri : ')
-            UniqueCurri.forEach(item => {
-                process.stdout.write(item.curr2_id + ' ')
-            })
+            // //Print UniqueCurri
+            // process.stdout.write(' UniqueCurri : ')
+            // UniqueCurri.forEach(item => {
+            //     process.stdout.write(item.curr2_id + ' ')
+            // })
             console.log("")
 
             // if( uniqueSubject[i].subject_id === '01006024')
@@ -255,8 +273,8 @@ async function timetable() {
 
             let averageCurriSec = parseInt(DataCurriSec.length / (DataSubjectSec.length))
             let avergeStudent = parseInt(SumOfStudent(DataCurriSec) / (DataSubjectSec.length))
-            // console.log('averageCurriSec', averageCurriSec)
-            // console.log('avergeStudent', avergeStudent)
+            console.log(' averageCurriSec : ', averageCurriSec)
+            console.log(' avergeStudent : ', avergeStudent)
             // console.log(SumOfStudent(DataCurriSec))
 
             let min = DataCurriSec.length
@@ -275,10 +293,10 @@ async function timetable() {
 
                 // UniqueCurri = UniqueCurri.sort(function (a, b) { return parseInt(a.curr2_id) - parseInt(b.curr2_id) });
                 //Print UniqueCurri
-                process.stdout.write(' UniqueCurri : ')
-                UniqueCurri.forEach(item => {
-                    process.stdout.write(item.curr2_id + ' ')
-                })
+                // process.stdout.write(' UniqueCurri : ')
+                // UniqueCurri.forEach(item => {
+                //     process.stdout.write(item.curr2_id + ' ')
+                // })
                 console.log("")
 
                 // Find path 
@@ -293,9 +311,16 @@ async function timetable() {
                 PathCurriID = PathCurriID.sort(function (a, b) { return b.section_sum - a.section_sum });
                 //console.log('PathCurriID', PathCurriID)
 
+                if (PathCurriID.length === 0) {
+                    console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                    StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                    continue
+                }
+
                 //Delete Old path like Recursive Function
+                //console.log("Before Old")
                 for (let k = 0; k < OldPathCurriID.length; k++) {
-                    //  console.log(OldPathCurriID[k])
+                    //console.log(OldPathCurriID[k])
                     if (OldPathCurriID[k].index_j === j) {
                         let Index = []
                         PathCurriID.forEach(item => {
@@ -318,6 +343,32 @@ async function timetable() {
                 //     break
                 // }
 
+                //console.log("PathCurriID  After Oldpath ", PathCurriID)
+                if (PathCurriID.length === 0) {
+                    let lastOldPathCurriID = []
+                    OldPathCurriID.forEach(item => {
+                        //console.log(item)
+                        if (item.index_j === j - 1) {
+                            //console.log(item,OldPathCurriID[k].path)
+                            lastOldPathCurriID = item;
+                        }
+                    });
+                    //console.log(lastOldPathCurriID)
+                    OldPathCurriID = OldPathCurriID.filter(item => (item.index_j < j))
+                    for (let k = 0; k < lastOldPathCurriID.tempUniqueCurri.length; k++) {
+                        let temp = lastOldPathCurriID.tempUniqueCurri[k]
+                        // Change Array To Json
+                        temp = temp[0]
+                        //console.log(temp)
+                        UniqueCurri.push({ curr2_id: temp.curr2_id, section_sum: temp.section_sum, section: temp.section, student_sum: temp.student_sum })
+                    }
+                    j = j - 2
+                    continue
+                    // console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} All path is overlay`)
+                    // StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} All path is overlay  `)
+                    // // continue
+                    // break
+                }
                 //Loop for Find path is not overlay 
                 while (true) {
                     // Find Min Path 
@@ -326,6 +377,7 @@ async function timetable() {
                     let MinSection = averageCurriSec
                     let MinStudent = avergeStudent
                     let PathTemp = []
+                    let TempItem = []
                     PathCurriID.forEach(item => {
                         if (AbsMinSection >= Math.abs(item.section_sum - averageCurriSec)
                             && AbsMinStudent >= Math.abs(item.student_sum - avergeStudent)) {
@@ -334,6 +386,7 @@ async function timetable() {
                             MinSection = item.section_sum - averageCurriSec
                             MinStudent = item.student_sum - avergeStudent
                             PathTemp = item.path
+                            TempItem = item
                         }
                     })
                     console.log(AbsMinSection, AbsMinStudent, PathTemp, MinSection, MinStudent)
@@ -341,20 +394,20 @@ async function timetable() {
                     if (AbsMinSection === averageCurriSec && AbsMinStudent === avergeStudent) {
                         let lastOldPathCurriID = []
                         OldPathCurriID.forEach(item => {
-                            console.log(item)
+                            //console.log(item)
                             if (item.index_j === j - 1) {
                                 //console.log(item,OldPathCurriID[k].path)
                                 lastOldPathCurriID = item;
                             }
                         });
-                        console.log(lastOldPathCurriID)
+                        //console.log(lastOldPathCurriID)
+                        //OldPathCurriID = OldPathCurriID.filter(item => (item !== lastOldPathCurriID ))
                         for (let k = 0; k < lastOldPathCurriID.tempUniqueCurri.length; k++) {
                             let temp = lastOldPathCurriID.tempUniqueCurri[k]
                             // Change Array To Json
                             temp = temp[0]
                             //console.log(temp)
                             UniqueCurri.push({ curr2_id: temp.curr2_id, section_sum: temp.section_sum, section: temp.section, student_sum: temp.student_sum })
-
                         }
                         j = j - 2
                         break
@@ -367,7 +420,7 @@ async function timetable() {
                             UniqueCurri = UniqueCurri.filter(item => item.curr2_id !== PathTemp[k])
                         }
                         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to SelectPathCurriID `)
+                            `to SelectPathCurriID Time Null`)
                         //console.log(PathTemp)
                         OldPathCurriID.push({ index_j: j, path: PathTemp, tempUniqueCurri: tempUniqueCurri })
                         SelectPathCurriID[j] = PathTemp
@@ -378,6 +431,7 @@ async function timetable() {
                         console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                             `to curr2_id ${PathTemp[k]}`)
                         let UniqueCurri_index = UniqueCurri.findIndex(item => (PathTemp[k] === item.curr2_id))
+                        //console.log('UniqueCurri ',UniqueCurri)
                         for (let l = 0; l < UniqueCurri[UniqueCurri_index].section.length; l++) {
 
                             console.log(UniqueCurri[UniqueCurri_index].section[l])
@@ -387,7 +441,7 @@ async function timetable() {
                             //Check Overlay time Subject Section
                             time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                                 if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-                                    console.log(item, DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].section)
+                                    console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
                                     checkOverlay = true
                                     return;
                                 }
@@ -404,20 +458,24 @@ async function timetable() {
 
                     }
 
-                    let tempUniqueCurri = []
-                    for (let k = 0; k < PathTemp.length; k++) {
-                        tempUniqueCurri.push(UniqueCurri.filter(item => item.curr2_id === PathTemp[k]))
-                        UniqueCurri = UniqueCurri.filter(item => item.curr2_id !== PathTemp[k])
-                    }
-                    OldPathCurriID.push({ index_j: j, path: PathTemp, tempUniqueCurri: tempUniqueCurri })
 
                     if (!checkOverlay) {
+                        let tempUniqueCurri = []
+                        for (let k = 0; k < PathTemp.length; k++) {
+                            tempUniqueCurri.push(UniqueCurri.filter(item => item.curr2_id === PathTemp[k]))
+                            UniqueCurri = UniqueCurri.filter(item => item.curr2_id !== PathTemp[k])
+                        }
+                        OldPathCurriID.push({ index_j: j, path: PathTemp, tempUniqueCurri: tempUniqueCurri })
                         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to SelectPathCurriID `)
+                            `to SelectPathCurriID Not Overlay`)
                         //console.log(PathTemp)
                         SelectPathCurriID[j] = PathTemp
                         break
                     }
+
+                    PathCurriID = PathCurriID.filter(item => item !== TempItem)
+                    console.log('PathCurriID After Overlay', PathCurriID)
+                    //break
                 }
 
             }
@@ -431,6 +489,11 @@ async function timetable() {
                 let tempCurri = []
                 let tempSubject = []
                 tempSubject[0] = DataSubjectSec[j]
+                if (PathTemp === undefined) {
+                    console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have SelectPathCurriID[j]`)
+                    StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have SelectPathCurriID[j]`)
+                    continue
+                }
                 for (let k = 0; k < PathTemp.length; k++) {
                     let UniqueCurri_index = UniqueCurri2.findIndex(item => (PathTemp[k] === item.curr2_id))
                     for (let l = 0; l < UniqueCurri2[UniqueCurri_index].section.length; l++) {
@@ -440,11 +503,11 @@ async function timetable() {
                     }
                 }
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
-                //Print DataCurriSec
-                process.stdout.write(' tempCurri : ')
-                tempCurri.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
+                // //Print DataCurriSec
+                // process.stdout.write(' tempCurri : ')
+                // tempCurri.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
                 console.log("")
 
                 if (DataSubjectSec[j].teach_time === null) {
@@ -489,18 +552,18 @@ async function timetable() {
                     Section.push(dataLeft.CurriSec)
                 }
 
-                // Print 
-                process.stdout.write(' DataCurriSecTemp : ')
-                DataCurriSecTemp.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
+                // // Print 
+                // process.stdout.write(' DataCurriSecTemp : ')
+                // DataCurriSecTemp.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
                 console.log("")
 
-                //Print Section
-                process.stdout.write(' Section : ')
-                Section.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
+                // //Print Section
+                // process.stdout.write(' Section : ')
+                // Section.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
                 console.log("")
                 console.log(' SumAmount ', SumAmount)
 
@@ -534,7 +597,7 @@ async function timetable() {
                 dataLeft = { CurriSec: '', amount: 0 }
 
                 if (SumAmount < MaxAmount && DataCurriSecTemp.length > 0) {
-                    console.log("min-----")
+                    // console.log("min-----")
                     let temp = DataCurriSecTemp[0]
                     let minAmount = temp.curr2_section_student_amount
                     DataCurriSecTemp.forEach(item => {
@@ -556,10 +619,10 @@ async function timetable() {
 
                 //console.log('Section ', Section)
                 //Print Section
-                process.stdout.write(' Section : ')
-                Section.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
+                // process.stdout.write(' Section : ')
+                // Section.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
                 console.log("")
                 console.log(' SumAmount ', SumAmount)
 
@@ -650,11 +713,11 @@ async function timetable() {
                 let DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return a.curr2_section - b.curr2_section });
                 DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return Math.abs(MaxAmount - a.curr2_section_student_amount) - Math.abs(MaxAmount - b.curr2_section_student_amount) });
 
-                // Print 
-                process.stdout.write(' DataCurriSecTemp : ')
-                DataCurriSecTemp.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
+                // // Print 
+                // process.stdout.write(' DataCurriSecTemp : ')
+                // DataCurriSecTemp.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
                 console.log("")
 
                 let dataLeft = { CurriSec: DataCurriSecTemp[0], amount: DataCurriSecTemp[0].curr2_section_student_amount }
@@ -663,6 +726,11 @@ async function timetable() {
 
                 let SelectPathCurriSec = [];
                 for (let j = 0; j < DataSubjectSec.length; j++) {
+                    if (j >= DataSubjectSecP.length) {
+                        console.log(`Subject_id ${uniqueSubject[i].subject_id} P less than Subject_id ${uniqueSubject[i].subject_id} L`)
+                        StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} P less than Subject_id ${uniqueSubject[i].subject_id} L`)
+                        break
+                    }
                     console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section L ${DataSubjectSec[j].subject_section}----`)
                     console.log(`----DataSubjectSec ${DataSubjectSecP[j].subject_id} Section P ${DataSubjectSecP[j].subject_section}----`)
                     let SumAmount = dataLeft.amount
@@ -670,19 +738,19 @@ async function timetable() {
                     if (dataLeft.CurriSec !== '') {
                         Section.push(dataLeft.CurriSec)
                     }
-                    // Print 
-                    process.stdout.write(' DataCurriSecTemp : ')
-                    DataCurriSecTemp.forEach(item => {
-                        process.stdout.write(item.curr2_section + ' ')
-                    })
+                    // // Print 
+                    // process.stdout.write(' DataCurriSecTemp : ')
+                    // DataCurriSecTemp.forEach(item => {
+                    //     process.stdout.write(item.curr2_section + ' ')
+                    // })
                     console.log("")
 
                     //Print Section
-                    console.log('Before In Loop')
-                    process.stdout.write(' Section : ')
-                    Section.forEach(item => {
-                        process.stdout.write(item.curr2_section + ' ')
-                    })
+                    // console.log('Before In Loop')
+                    // process.stdout.write(' Section : ')
+                    // Section.forEach(item => {
+                    //     process.stdout.write(item.curr2_section + ' ')
+                    // })
                     console.log("")
                     console.log(' SumAmount ', SumAmount)
 
@@ -716,7 +784,7 @@ async function timetable() {
 
                     dataLeft = { CurriSec: '', amount: 0 }
                     if (SumAmount < MaxAmount && DataCurriSecTemp.length > 0) {
-                        console.log("min-----")
+                        // console.log("min-----")
                         let temp = DataCurriSecTemp[0]
                         let minAmount = temp.curr2_section_student_amount
                         DataCurriSecTemp.forEach(item => {
@@ -727,8 +795,8 @@ async function timetable() {
                         })
 
 
-                        console.log('minAmount ', minAmount)
-                        console.log('curr2_section ', temp.curr2_section)
+                        // console.log('minAmount ', minAmount)
+                        // console.log('curr2_section ', temp.curr2_section)
 
                         let amountLeft = MaxAmount - SumAmount
                         dataLeft = { CurriSec: temp, amount: temp.curr2_section_student_amount - amountLeft }
@@ -738,28 +806,28 @@ async function timetable() {
                     }
 
                     if (SumAmount > MaxAmount && Section.length === 1) {
-                        console.log("SumAmount > MaxAmount")
+                        // console.log("SumAmount > MaxAmount")
                         let temp = Section[0]
                         let minAmount = SumAmount
 
-                        console.log('SumAmount ', minAmount)
-                        console.log('curr2_section ', temp.curr2_section)
+                        // console.log('SumAmount ', minAmount)
+                        // console.log('curr2_section ', temp.curr2_section)
                         dataLeft = { CurriSec: temp, amount: SumAmount - MaxAmount }
 
                     }
 
 
                     //console.log('Section ', Section)
-                    //Print Section
-                    console.log('After Loop')
-                    process.stdout.write(' Section : ')
-                    Section.forEach(item => {
-                        process.stdout.write(item.curr2_section + ' ')
-                    })
+                    // //Print Section
+                    // console.log('After Loop')
+                    // process.stdout.write(' Section : ')
+                    // Section.forEach(item => {
+                    //     process.stdout.write(item.curr2_section + ' ')
+                    // })
                     console.log("")
                     console.log(' SumAmount ', SumAmount)
 
-                    if (DataSubjectSec[j].teach_time === null) {
+                    if (DataSubjectSec[j].teach_time === null || DataSubjectSec[j].teach_time === '00:00:00') {
 
                         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                             `to SelectPathCurriSec `)
@@ -946,11 +1014,11 @@ async function timetable() {
         for (let j = 0; j < SubjectSec.length; j++) {
             console.log(`subject_id ${SubjectSec[j].subject_id} Section ${SubjectSec[j].subject_section} `)
         }
-        process.stdout.write(`to curr2_section : `)
+        //process.stdout.write(`to curr2_section : `)
         //console.log('CurriSec', CurriSec)
-        for (let j = 0; j < CurriSec.length; j++) {
-            process.stdout.write(` ${CurriSec[j].curr2_section}`)
-        }
+        // for (let j = 0; j < CurriSec.length; j++) {
+        //     process.stdout.write(` ${CurriSec[j].curr2_section}`)
+        // }
         console.log('')
 
         let TimeSlot = findTimeSlot(DataNotime[i])
@@ -964,7 +1032,7 @@ async function timetable() {
             for (let j = 0; j < CurriSec.length; j++) {
                 let time_CurriSec_index = time_CurriSec.findIndex(item => (CurriSec[j].curr2_section === item.curr2_section))
                 time_CurriSec[time_CurriSec_index].subject.push(SubjectSec[0])
-                if (SubjectSec.length === 2) {  
+                if (SubjectSec.length === 2) {
                     time_CurriSec[time_CurriSec_index].subject.push(SubjectSec[1])
                 }
                 console.log(` => Add ${SubjectSec[0].subject_id} Section ${SubjectSec[0].subject_section} ` +
@@ -983,7 +1051,11 @@ async function timetable() {
     console.log('')
 
 
-    PrintTable(time_CurriSec)
+    //PrintTable(time_CurriSec)
+    AddDataTimeTable(time_CurriSec)
+    //PrintDataTimeTable(uniqueSubject)
+
+    return DataTimeTable
 }
 
 
@@ -1047,6 +1119,9 @@ function findPath(data, max, min, section_break, student_break, section_break2, 
         findPathRe(data, data.length, 0, 0, [], section_break, student_break, section_break2, student_break2)
     }
     else {
+        if (min === 0) {
+            min = 1
+        }
         for (let i = max; i >= min; i--) {
             findPathRe(data, i, 0, 0, [], section_break, student_break, section_break2, student_break2)
         }
@@ -1164,13 +1239,14 @@ function PrintTable(time_CurriSec) {
     console.log("------------ TIME TABLE ------------")
     for (let i = 0; i < time_CurriSec.length; i++) {
         let thisData = time_CurriSec[i];
-        process.stdout.write(`  curr2_id ${thisData.curr2_id} curr2_section ${thisData.curr2_section}\n`)
+        //process.stdout.write(`  curr2_id ${thisData.curr2_id} curr2_section ${thisData.curr2_section}\n`)
 
         // Sort Data
-        thisData.subject = thisData.subject.sort(function (a, b) { return a.subject_id - b.subject_id });
-        //thisData.subject = thisData.subject.sort(function (a, b) { return decimalHours(a.teach_time) - decimalHours(b.teach_time) });
-        thisData.subject = thisData.subject.sort(function (a, b) { return DaytoInt(a.teach_day) - DaytoInt(b.teach_day) });
-
+        //thisData.subject = thisData.subject.sort(function (a, b) { return a.subject_section - b.subject_section });
+        // thisData.subject = thisData.subject.sort(function (a, b) { return a.subject_id - b.subject_id });
+        // thisData.subject = thisData.subject.sort(function (a, b) { return decimalHours(a.teach_time) - decimalHours(b.teach_time) });
+        // thisData.subject = thisData.subject.sort(function (a, b) { return DaytoInt(a.teach_day) - DaytoInt(b.teach_day) });
+        thisData.subject = SortSubject(thisData.subject)
         for (let j = 0; j < thisData.subject.length; j++) {
             let thisData2 = thisData.subject[j]
             process.stdout.write(`    Subject ${thisData2.subject_id} Section ${thisData2.subject_section} `)
@@ -1180,6 +1256,57 @@ function PrintTable(time_CurriSec) {
 
     }
     console.log("------------ END TIME TABLE ------------\n")
+}
+
+function AddDataTimeTable(time_CurriSec) {
+    console.log("------------ ADD DATA TIME TABLE ------------")
+    for (let i = 0; i < time_CurriSec.length; i++) {
+        let thisData = time_CurriSec[i];
+        //process.stdout.write(`  curr2_id ${thisData.curr2_id} curr2_section ${thisData.curr2_section}\n`)
+        for (let j = 0; j < thisData.subject.length; j++) {
+            let thisData2 = thisData.subject[j]
+            // process.stdout.write(`    Subject ${thisData2.subject_id} Section ${thisData2.subject_section} `)
+            // process.stdout.write(`Day ${thisData2.teach_day} Time ${thisData2.teach_time} to ${thisData2.teach_time2} L_P ${thisData2.lect_or_prac}\n`)
+            DataTimeTable.push({
+                "subject_id": thisData2.subject_id,
+                "subject_section": thisData2.subject_section,
+                "curr2_section": thisData.curr2_section,
+                "teach_time": thisData2.teach_time,
+                "semester": 1,
+                "year": 2020,
+                "curr2_id": thisData.curr2_id,
+                "teach_day": thisData2.teach_day,
+                "teach_time2": thisData2.teach_time2,
+                "lect_or_prac": thisData2.lect_or_prac,
+                "break_time": thisData2.break_time
+            })
+        }
+        //console.log('')
+    }
+    DataTimeTable = SortAllData(DataTimeTable)
+    console.log("------------ END ADD DATA TIME TABLE ------------\n")
+}
+
+function PrintDataTimeTable(uniqueSubject) {
+    console.log("------------ DATA TIME TABLE ------------")
+    uniqueSubject = uniqueSubject.sort(function (a, b) { return a.subject_id - b.subject_id });
+    for (let j = 0; j < uniqueSubject.length; j++) {
+        console.log('----------------------------------------------------------')
+        console.log(' subject_id : ', uniqueSubject[j].subject_id)
+        let dataTimeTable = DataTimeTable.filter(item => item.subject_id === uniqueSubject[j].subject_id && item.lect_or_prac === uniqueSubject[j].lect_or_prac)
+        // dataTimeTable = dataTimeTable.sort(function (a, b) { return a.curr2_section - b.curr2_section });
+        // dataTimeTable = dataTimeTable.sort(function (a, b) { return a.subject_section - b.subject_section });
+        dataTimeTable = SortDataTimeTable(dataTimeTable)
+        for (let i = 0; i < dataTimeTable.length; i++) {
+            let thisData = dataTimeTable[i];
+            process.stdout.write(` subject_id ${thisData.subject_id} subject_section ${thisData.subject_section} curr2_section ${thisData.curr2_section}`)
+            process.stdout.write(` teach_time ${thisData.teach_time} semster ${thisData.semster} year ${thisData.year}`)
+            process.stdout.write(` curr2_id ${thisData.curr2_id} teach_day ${thisData.teach_day} teach_time2 ${thisData.teach_time2}`)
+            process.stdout.write(` lect_or_prac ${thisData.lect_or_prac} break_time ${thisData.break_time}`)
+            console.log('')
+        }
+    }
+    console.log("------------ END DATA TIME TABLE ------------\n")
 }
 
 function PrintCheckedDataSubjectSec(CheckedDataSubjectSec) {
@@ -1232,28 +1359,28 @@ function getTime_CurriSec(currisec) {
 
 function getPriority(subject_id) {
     if (subject_id === '01006028') {
-        return 0;
+        return 0
     }
     if (subject_id === '01006010' || subject_id === '01006011'
         || subject_id === '01006030' || subject_id === '01006031') {
-        return 1;
+        return 1
     }
     if (subject_id === '01006015') {
-        return 2;
+        return 2
     }
     if (subject_id === '01006020' || subject_id === '01006022'
         || subject_id === '01006024') {
-        return 3;
+        return 3
     }
     if (subject_id === '01006021' || subject_id === '01006023'
         || subject_id === '01006025') {
-        return 4;
+        return 4
     }
     if (subject_id === '01006012') {
-        return 5;
+        return 5
     }
     else {
-        return 6;
+        return 6
     }
 }
 
@@ -1280,6 +1407,21 @@ function DataNotimeSort(DataNotime) {
         }
 
     }
+
+    for (let i = 0; i < DataNotime.length; i++) {
+        for (let j = i + 1; j < DataNotime.length; j++) {
+            if (DataNotime[i].SubjectSec.length === DataNotime[j].SubjectSec.length) {
+                if (DataNotime[i].CurriSec.length === DataNotime[j].CurriSec.length) {
+                    if (DataNotime[i].SubjectSec[0].subject_id > DataNotime[j].SubjectSec[0].subject_id) {
+                        let Temp = DataNotime[i]
+                        DataNotime[i] = DataNotime[j]
+                        DataNotime[j] = Temp
+                    }
+                }
+            }
+        }
+
+    }
     return DataNotime
 }
 
@@ -1292,15 +1434,15 @@ function findTimeSlot(Data) {
     //console.log(DataNotime[i].SubjectSec)
     //console.log('SubjectSec ', SubjectSec)
     for (let j = 0; j < SubjectSec.length; j++) {
-        console.log(`subject_id ${SubjectSec[j].subject_id} Section ${SubjectSec[j].subject_section} `)
+        //console.log(`subject_id ${SubjectSec[j].subject_id} Section ${SubjectSec[j].subject_section} `)
         break_time = SubjectSec[j].break_time
         if (break_time === null || break_time === '') {
             break_time = 0
         }
         TimeSum += decimalHours(SubjectSec[j].teach_hr) + break_time
     }
-    console.log('TimeSum ', TimeSum)
-    console.log(`to curr2_section : `)
+    //console.log('TimeSum ', TimeSum)
+    //console.log(`to curr2_section : `)
 
     let TimePeriodData = TimePeriod()
     let TimeSlot = []
@@ -1310,6 +1452,10 @@ function findTimeSlot(Data) {
             //console.log(` ${CurriSec[j].curr2_section}`)
             let time_CurriSec_index = time_CurriSec.findIndex(item => (CurriSec[j].curr2_section === item.curr2_section))
 
+            if ((TimePeriodData[i].period === 0 || TimePeriodData[i].period === 3) && (decimalHours('03:00') <= TimeSum)) {
+                checkOverlay = true
+                break
+            }
             //Check Overlay time Subject Section
             time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                 if (CheckTimeOverlay(item, TimePeriodData[i]) === -1) {
@@ -1331,7 +1477,8 @@ function findTimeSlot(Data) {
         DataTime[0] = TimeSlot[0]
         if (SubjectSec.length === 2) {
             //DataTime[1] = TimeSlot[0]
-            if (DataTime[0].period === 1) {
+            let TimeSum2
+            if (DataTime[0].period <= 1) {
                 TimeSum2 = TimeSum / 2
                 // 2 Period
                 let temp = DataTime[0].teach_time2
@@ -1353,7 +1500,7 @@ function findTimeSlot(Data) {
                 // DataTime[1].teach_time = temp
 
             }
-            if (DataTime[0].period === 2) {
+            if (DataTime[0].period >= 2) {
                 TimeSum2 = TimeSum / 2
                 // 2 Period
                 let time = decimalHours(DataTime[0].teach_time)
@@ -1372,49 +1519,49 @@ function findTimeSlot(Data) {
                 // DataTime[1].teach_time = time2
                 // DataTime[1].teach_time2 = time
             }
-            if (DataTime[0].period === 3) {
+            // if (DataTime[0].period === 3) {
 
-                TimeSum2 = TimeSum / 2
-                // 2 Period
-                let time = decimalHours(DataTime[0].teach_time)
-                let time2 = decimalHours(DataTime[0].teach_time)
-                time += TimeSum
-                time = Hoursdecimal(time)
-                //Middel Time Period
-                time2 += TimeSum2
-                time2 = Hoursdecimal(time2)
-                //console.log(time)
-                //DataTime[0].teach_time = time
-                DataTime[0].teach_time2 = time2
+            //     TimeSum2 = TimeSum / 2
+            //     // 2 Period
+            //     let time = decimalHours(DataTime[0].teach_time)
+            //     let time2 = decimalHours(DataTime[0].teach_time)
+            //     time += TimeSum
+            //     time = Hoursdecimal(time)
+            //     //Middel Time Period
+            //     time2 += TimeSum2
+            //     time2 = Hoursdecimal(time2)
+            //     //console.log(time)
+            //     //DataTime[0].teach_time = time
+            //     DataTime[0].teach_time2 = time2
 
-                DataTime.push({ period: DataTime[0].period, teach_day: DataTime[0].teach_day, teach_time: time2, teach_time2: time })
+            //     DataTime.push({ period: DataTime[0].period, teach_day: DataTime[0].teach_day, teach_time: time2, teach_time2: time })
 
-                // DataTime[1].teach_time = time2
-                // DataTime[1].teach_time2 = time
-            }
+            //     // DataTime[1].teach_time = time2
+            //     // DataTime[1].teach_time2 = time
+            // }
         }
         else {
-            if (DataTime[0].period === 1) {
+            if (DataTime[0].period <= 1) {
                 let time = decimalHours(DataTime[0].teach_time2)
                 time -= TimeSum
                 time = Hoursdecimal(time)
                 //console.log(time)
                 DataTime[0].teach_time = time
             }
-            if (DataTime[0].period === 2) {
+            if (DataTime[0].period >= 2) {
                 let time = decimalHours(DataTime[0].teach_time)
                 time += TimeSum
                 time = Hoursdecimal(time)
                 //console.log(time)
                 DataTime[0].teach_time2 = time
             }
-            if (DataTime[0].period === 3) {
-                let time = decimalHours(DataTime[0].teach_time)
-                time += TimeSum
-                time = Hoursdecimal(time)
-                //console.log(time)
-                DataTime[0].teach_time2 = time
-            }
+            // if (DataTime[0].period === 3) {
+            //     let time = decimalHours(DataTime[0].teach_time)
+            //     time += TimeSum
+            //     time = Hoursdecimal(time)
+            //     //console.log(time)
+            //     DataTime[0].teach_time2 = time
+            // }
         }
         // console.log('time ', DataTime[0].teach_time)
         // console.log('time2 ', DataTime[0].teach_time2)
@@ -1434,21 +1581,158 @@ function TimePeriod() {
     let day = ['mon', 'tue', 'thu', 'fri', 'sat', 'sun']
     //let day = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
     for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:00:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '12:00:00', teach_time2: '14:00:00' })
+        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
     }
     for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
+        TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
     }
     for (let i = 4; i < day.length; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:00:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '12:00:00', teach_time2: '14:00:00' })
+        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
     }
-    
-    
+
+
     //console.log(TimePeriod)
     return TimePeriod
 }
 
-timetable()
+function SortSubject(subject) {
+    for (let i = 0; i < subject.length; i++) {
+        for (let j = i + 1; j < subject.length; j++) {
+            if (subject[i].subject_section > subject[j].subject_section) {
+                let Temp = subject[i]
+                subject[i] = subject[j]
+                subject[j] = Temp
+            }
+        }
+
+    }
+
+    for (let i = 0; i < subject.length; i++) {
+        for (let j = i + 1; j < subject.length; j++) {
+            if (subject[i].subject_id > subject[j].subject_id) {
+                let Temp = subject[i]
+                subject[i] = subject[j]
+                subject[j] = Temp
+            }
+        }
+
+    }
+
+    for (let i = 0; i < subject.length; i++) {
+        for (let j = i + 1; j < subject.length; j++) {
+            if (decimalHours(subject[i].teach_time) > decimalHours(subject[j].teach_time)) {
+                let Temp = subject[i]
+                subject[i] = subject[j]
+                subject[j] = Temp
+            }
+        }
+
+    }
+    for (let i = 0; i < subject.length; i++) {
+        for (let j = i + 1; j < subject.length; j++) {
+            if (DaytoInt(subject[i].teach_day) > DaytoInt(subject[j].teach_day)) {
+                let Temp = subject[i]
+                subject[i] = subject[j]
+                subject[j] = Temp
+            }
+        }
+
+    }
+    return subject
+}
+
+function SortDataTimeTable(dataTimeTable) {
+    for (let i = 0; i < dataTimeTable.length; i++) {
+        for (let j = i + 1; j < dataTimeTable.length; j++) {
+            if (dataTimeTable[i].subject_section > dataTimeTable[j].subject_section) {
+                let Temp = dataTimeTable[i]
+                dataTimeTable[i] = dataTimeTable[j]
+                dataTimeTable[j] = Temp
+            }
+        }
+    }
+
+    for (let i = 0; i < dataTimeTable.length; i++) {
+        for (let j = i + 1; j < dataTimeTable.length; j++) {
+            if (dataTimeTable[i].subject_section === dataTimeTable[j].subject_section) {
+                if (dataTimeTable[i].curr2_section > dataTimeTable[j].curr2_section) {
+                    let Temp = dataTimeTable[i]
+                    dataTimeTable[i] = dataTimeTable[j]
+                    dataTimeTable[j] = Temp
+                }
+            }
+        }
+    }
+
+
+    return dataTimeTable
+}
+function SortAllData(dataTimeTable) {
+
+    for (let i = 0; i < dataTimeTable.length; i++) {
+        for (let j = i + 1; j < dataTimeTable.length; j++) {
+            if (dataTimeTable[i].subject_id > dataTimeTable[j].subject_id) {
+                let Temp = dataTimeTable[i]
+                dataTimeTable[i] = dataTimeTable[j]
+                dataTimeTable[j] = Temp
+            }
+
+        }
+    }
+    for (let i = 0; i < dataTimeTable.length; i++) {
+        for (let j = i + 1; j < dataTimeTable.length; j++) {
+            if (dataTimeTable[i].subject_id === dataTimeTable[j].subject_id) {
+                if (dataTimeTable[i].subject_section > dataTimeTable[j].subject_section) {
+                    let Temp = dataTimeTable[i]
+                    dataTimeTable[i] = dataTimeTable[j]
+                    dataTimeTable[j] = Temp
+                }
+            }
+        }
+    }
+
+    for (let i = 0; i < dataTimeTable.length; i++) {
+        for (let j = i + 1; j < dataTimeTable.length; j++) {
+            if (dataTimeTable[i].subject_id === dataTimeTable[j].subject_id) {
+                if (dataTimeTable[i].subject_section === dataTimeTable[j].subject_section) {
+                    if (dataTimeTable[i].curr2_section > dataTimeTable[j].curr2_section) {
+                        let Temp = dataTimeTable[i]
+                        dataTimeTable[i] = dataTimeTable[j]
+                        dataTimeTable[j] = Temp
+                    }
+                }
+            }
+        }
+    }
+
+    // for (let i = 0; i < dataTimeTable.length; i++) {
+    //     for (let j = i + 1; j < dataTimeTable.length; j++) {
+    //         if (dataTimeTable[i].subject_id === dataTimeTable[j].subject_id) {
+    //             if (dataTimeTable[i].curr2_section === dataTimeTable[j].curr2_section) {
+    //                 if (dataTimeTable[i].subject_section > dataTimeTable[j].subject_section) {
+    //                     let Temp = dataTimeTable[i]
+    //                     dataTimeTable[i] = dataTimeTable[j]
+    //                     dataTimeTable[j] = Temp
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+
+
+
+    return dataTimeTable
+
+}
+export { timetable }
+// function CallTimeTable() {
+//     return timetable()
+// }
 

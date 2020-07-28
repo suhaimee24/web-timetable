@@ -4,6 +4,7 @@ import axios from 'axios'
 import './style.css';
 import moment from 'moment';
 import XLSX from 'xlsx'
+import { timetable } from './time_table.js'
 
 const { Option } = Select;
 
@@ -31,7 +32,7 @@ const columns = [
         title: 'สาขาที่เรียน',
         dataIndex: 'curr2_id',
         key: 'curr2_id',
-        width: 100
+        width: 140
     },
     {
         title: 'Section',
@@ -173,24 +174,24 @@ const daytest = [
 
 var datatest = [];
 let counttest = 0
-for (let i = 0; i < 20; i++) {
-    let j = Math.floor(Math.random() * 7)
-    datatest.push({
-        key: i.toString(),
-        subject_id: subjecttest[j].subject_id,
-        subject_ename: subjecttest[j].subject_ename,
-        subject_section: Math.floor(Math.random() * 2) + 1,
-        curr2_id: curritest[j].curr2_id,
-        curr2_section: 1,
-        teach_day: daytest[j].day_id,
-        teach_time: '09:30',
-        teach_time2: '12:30',
-        lect_or_prac: 'l',
-        break_time: 0,
-        semester: Math.floor(Math.random() * 2) + 1,
-        year: Math.floor(Math.random() * 3) + 2018,
-    });
-}
+// for (let i = 0; i < 20; i++) {
+//     let j = Math.floor(Math.random() * 7)
+//     datatest.push({
+//         key: i.toString(),
+//         subject_id: subjecttest[j].subject_id,
+//         subject_ename: subjecttest[j].subject_ename,
+//         subject_section: Math.floor(Math.random() * 2) + 1,
+//         curr2_id: curritest[j].curr2_id,
+//         curr2_section: 1,
+//         teach_day: daytest[j].day_id,
+//         teach_time: '09:30',
+//         teach_time2: '12:30',
+//         lect_or_prac: 'l',
+//         break_time: 0,
+//         semester: Math.floor(Math.random() * 2) + 1,
+//         year: Math.floor(Math.random() * 3) + 2018,
+//     });
+// }
 
 datatest = datatest.sort(function (a, b) { return a.subject_section - b.subject_section });
 datatest = datatest.sort(function (a, b) { return a.subject_id - b.subject_id });
@@ -203,7 +204,7 @@ export default class table extends Component {
         super(props);
         this.state = {
             data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
-            curri: curritest, subject: subjecttest, day: daytest, isLoad: false, thisAddData: false,
+            curri: curritest, subject: subjecttest, day: daytest, isLoad: true, thisAddData: false, thisTimeTable: false,
             search: { year: 2020, semester: 1, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             input: {
                 subject_id: '', subject_ename: '', subject_section: '', curr2_section: '',
@@ -213,34 +214,54 @@ export default class table extends Component {
         }
     }
     componentWillMount() {
-        //this.getData()
+        this.getData()
     }
 
     async getData() {
-
-        let SubSec = await axios.get("http://localhost:9000/API/subject_section")
-        //let resSub = await axios.get("http://localhost:9000/API/subject")
-        let resSub = subjecttest
-        console.log(SubSec.data)
-
+        let token = await axios.post("http://localhost:9000/API/login", {
+            username: 'admin',
+            password: '1234'
+        })
+        token = token.data;
+        console.log(token)
+        let teachtable = await axios.get("http://localhost:9000/API/teach_table", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        teachtable = teachtable.data
+        console.log(teachtable)
+        let resCurri = await axios.get("http://localhost:9000/API/curriculum2", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        resCurri = resCurri.data
+        console.log(resCurri)
+        let resSub = await axios.get("http://localhost:9000/API/subject", {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        resSub = resSub.data
         console.log(resSub)
         //join Table
         let resData = []
-        for (let i = 0; i < SubSec.data.length; i++) {
+        for (let i = 0; i < teachtable.length; i++) {
+            let item = teachtable[i]
             resData.push({
                 key: i.toString(),
-                subject_id: SubSec.data[i].subject_id,
-                subject_ename: resSub.find(element => {
-                    return element.subject_id === SubSec.data[i].subject_id ? 1 : ''
-                }).subject_ename,
-                subject_section: SubSec.data[i].subject_section,
-                teach_hr: SubSec.data[i].teach_hr,
-                subject_section_student_amount: SubSec.data[i].subject_section_student_amount,
-                teach_day: SubSec.data[i].teach_day,
-                teach_time: SubSec.data[i].teach_time.substring(0, 5),
-                teach_time2: SubSec.data[i].teach_time2.substring(0, 5),
-                lect_or_prac: SubSec.data[i].lect_or_prac,
-                break_time: SubSec.data[i].break_time,
+                subject_id: item.subject_id,
+                subject_section: item.subject_section,
+                curr2_section: item.curr2_section,
+                semester: item.semester,
+                year: item.year,
+                curr2_id: item.curr2_id,
+                teach_day: item.teach_day,
+                teach_time: item.teach_time,
+                teach_time2: item.teach_time2,
+                lect_or_prac: item.lect_or_prac,
+                break_time: item.break_time,
             })
         }
         //sort data by subject_section and subject_id
@@ -248,8 +269,8 @@ export default class table extends Component {
         resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
 
         this.setState({
-            data: resData, alldata: resData, count: SubSec.data.length + 1,
-            subject: resSub,
+            data: resData, alldata: resData, count: resData.length + 1,
+            subject: resSub, curri: resCurri,
             isLoad: false
         })
     }
@@ -317,7 +338,7 @@ export default class table extends Component {
         return this.state.data.map((data) => {
             let { subject_id, subject_ename, subject_section, curr2_id, curr2_section, subject_section_student_amount,
                 teach_day, teach_time, teach_time2, lect_or_prac, break_time, key } = data; //destructuring
-            const { input, thisAddData, day, curri } = this.state;
+            const { input, thisAddData, day, curri, subject } = this.state;
             if (this.state.editingKey === key) {
                 return (
                     <tr>
@@ -384,7 +405,9 @@ export default class table extends Component {
                 return (
                     <tr key={key}>
                         <td className="tdata">{subject_id}</td>
-                        <td className="tdata">{subject_ename}</td>
+                        <td className="tdata">{subject.find(element => {
+                            return element.subject_id === subject_id ? 1 : ''
+                        }).subject_ename}</td>
                         <td className="tdata">{subject_section}</td>
                         <td className="tdata">{curri.find(element => {
                             return element.curr2_id === curr2_id ? 1 : ''
@@ -760,9 +783,9 @@ export default class table extends Component {
 
     ButtonSearch = () => {
         let { alldata, search } = this.state;
-        alldata = alldata.sort(function (a, b) { return a.curr2_id - b.curr2_id })
-        alldata = alldata.sort(function (a, b) { return a.subject_section - b.subject_section })
-        alldata = alldata.sort(function (a, b) { return a.subject_id - b.subject_id })
+        // alldata = alldata.sort(function (a, b) { return a.curr2_id - b.curr2_id })
+        // alldata = alldata.sort(function (a, b) { return a.subject_section - b.subject_section })
+        // alldata = alldata.sort(function (a, b) { return a.subject_id - b.subject_id })
         console.log(search)
         if (search.subject_id === "all" && search.curr2_id === 'all') {
             console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester)))
@@ -801,7 +824,7 @@ export default class table extends Component {
 
     ButtonExport = () => {
         console.log("Export")
-        const { data, curri, day } = this.state
+        const { data, curri, day, subject } = this.state
         if (data.length === 0) {
             alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
             return;
@@ -810,7 +833,9 @@ export default class table extends Component {
         data.forEach(item => {
             temp.push({
                 'รหัสวิชา': item.subject_id,
-                'ชื่อวิชา': item.subject_ename,
+                'ชื่อวิชา': subject.find(element => {
+                    return element.subject_id === item.subject_id ? 1 : ''
+                }).subject_ename,
                 'กลุ่มวิชา': item.subject_section,
                 'สาขาที่เรียน': curri.find(element => {
                     return element.curr2_id === item.curr2_id ? 1 : ''
@@ -850,6 +875,16 @@ export default class table extends Component {
 
     };
 
+    ButtonTimeTable = async () => {
+        let Data = await timetable()
+        console.log('test', Data)
+        this.setState({
+            data: Data,
+            alldata: Data,
+            thisTimeTable:true
+        })
+    }
+
     render() {
         return (
             <div>
@@ -865,7 +900,7 @@ export default class table extends Component {
                             </tbody>
                         </table>
                         <div>
-                            <Button onClick={this.Bu} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                            <Button onClick={this.ButtonTimeTable} type="primary" style={{ margin: 16 }} disabled={this.state.thisTimeTable}>
                                 จัดตารางสอน
                             </Button>
                             <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
