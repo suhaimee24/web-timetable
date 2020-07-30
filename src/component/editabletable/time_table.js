@@ -20,7 +20,7 @@ async function timetable() {
         password: '1234'
     })
     token = token.data;
-    console.log(token);
+    //console.log(token);
 
     let currisub = await axios.get("http://localhost:9000/API/curriculum2_subject", {
         headers: {
@@ -67,7 +67,7 @@ async function timetable() {
         }
     })
     console.log(res.data);
-    
+
     // Set Data before Calculate
     uniqueSubject = getUniqueSubject(SubSec);
     time_CurriSec = getTime_CurriSec(currisec);
@@ -1573,7 +1573,7 @@ function AddDataTimeTable(time_CurriSec) {
 }
 
 function UpData(DataTimeTable) {
-    console.log(token)
+    // console.log(token)
     for (let i = 0; i < DataTimeTable.length; i++) {
         let thisData2 = DataTimeTable[i]
         let res = axios.post("http://localhost:9000/API/teach_table/", {

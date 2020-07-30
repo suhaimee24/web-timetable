@@ -225,7 +225,7 @@ export default class table extends Component {
             password: '1234'
         })
         token = token.data;
-        console.log(token)
+        // console.log(token)
         let teachtable = await axios.get("http://localhost:9000/API/teach_table", {
             headers: {
                 Authorization: 'Bearer ' + token
@@ -902,6 +902,9 @@ export default class table extends Component {
         })
         let Data = await timetable()
         //console.log('test', Data)
+        if(Data === undefined){
+            Data = []
+        }
         this.setState({
             data: Data,
             alldata: Data,

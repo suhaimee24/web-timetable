@@ -3,6 +3,7 @@ import { Input, Popconfirm, Button, Spin, Select, TimePicker } from 'antd';
 import axios from 'axios'
 import './style.css';
 import moment from 'moment';
+import XLSX from 'xlsx'
 
 
 const { Option } = Select;
@@ -752,6 +753,56 @@ export default class table extends Component {
         }
     };
 
+    ButtonExport = () => {
+        console.log("Export")
+        const { data, curri, day, subject } = this.state
+        if (data.length === 0) {
+            alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
+            return;
+        }
+        let temp = []
+        data.forEach(item => {
+            temp.push({
+                'รหัสวิชา': item.subject_id,
+                'ชื่อวิชา': subject.find(element => {
+                    return element.subject_id === item.subject_id ? 1 : ''
+                }).subject_ename,
+                'จำนวนชั่วโมง': item.teach_hr,
+                'จำนวนที่รับ': item.subject_section_student_amount,
+                'วันที่สอน': day.find(element => {
+                    return element.day_id === item.teach_day ? 1 : ''
+                }).day_name,
+                'เวลาเริ่ม': item.teach_time,
+                'เวลาสิ้นสุด': item.teach_time2,
+                'ทฤษฎี-ปฏิบัติ': item.lect_or_prac === 'l' ? "ทฤษฎี" : "ปฏิบัติ",
+                'เวลาพัก': item.break_time,
+            })
+        })
+
+        const dataWS = XLSX.utils.json_to_sheet(temp)
+        console.log(dataWS)
+        let wscols = [
+            { wch: 15 },
+            { wch: 30 },
+            { wch: 15 },
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 }
+        ];
+        dataWS['!cols'] = wscols
+
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, dataWS)
+        XLSX.writeFile(wb, 'Subject_Section.xlsx')
+
+        return;
+
+    };
+
     render() {
         return (
             <div>
@@ -769,6 +820,9 @@ export default class table extends Component {
                         <div>
                             <Button onClick={this.ButtonAdd} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
                                 Add Data
+                            </Button>
+                            <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
+                                Export
                             </Button>
                         </div>
                     </div>}
