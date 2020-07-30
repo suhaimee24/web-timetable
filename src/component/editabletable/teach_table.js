@@ -65,7 +65,7 @@ const columns = [
         width: 90
     },
     {
-        title: 'break_time',
+        title: 'เวลาพักเบรค',
         dataIndex: 'break_time',
         key: 'break_time',
         width: 90
@@ -893,10 +893,15 @@ export default class table extends Component {
     };
 
     ButtonTimeTable = async () => {
+        this.setState({
+            isLoad: true,
+            thisTimeTable: true
+        })
         let Data = await timetable()
         //console.log('test', Data)
         this.setState({
             data: Data,
+            isLoad: false,
             alldata: Data,
             thisTimeTable: true
         })
