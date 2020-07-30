@@ -126,7 +126,6 @@ export default class table extends Component {
     }
 
     async getData() {
-
         let token = await axios.post("http://localhost:9000/API/login", {
             username: 'admin',
             password: '1234'

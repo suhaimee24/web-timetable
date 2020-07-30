@@ -5,7 +5,7 @@ import {
     Route,
 } from "react-router-dom";
 
-
+import Login from './page/Login';
 import Curri_section from './page/curri_section';
 import Curriculum from './page/curriculum';
 import Subject_section from './page/subject_section';
@@ -16,6 +16,9 @@ const Routes = () => (
     <Router>
         <Switch>
             <Route exact path="/">
+                <Login />
+            </Route>
+            <Route path="/curri_section">
                 <Curri_section />
             </Route>
             <Route path="/curriculum">
@@ -28,7 +31,7 @@ const Routes = () => (
                 <Timetable />
             </Route>
             <Route path="/test">
-                <Testtable/>
+                <Testtable />
             </Route>
             <Route path='*'>
                 <h1>404 NOT FOUND</h1>

@@ -65,7 +65,7 @@ const columns = [
         width: 90
     },
     {
-        title: 'break_time',
+        title: 'เวลาพัก',
         dataIndex: 'break_time',
         key: 'break_time',
         width: 90
@@ -267,17 +267,18 @@ export default class table extends Component {
             })
         }
         //sort data by subject_section and subject_id
-        resData = resData.sort(function (a, b) { return a.subject_section - b.subject_section });
-        resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
-
+        // resData = resData.sort(function (a, b) { return a.subject_section - b.subject_section });
+        // resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
+        
         var d = new Date();
         var semester = 1
         var year = d.getFullYear()
         if (d.getMonth() > 8 || d.getMonth() < 3) {
             semester = 2
         }
+        let tempData = resData.filter(item => (item.year === year && item.semester === semester))
         this.setState({
-            data: resData, alldata: resData, count: resData.length + 1,
+            data: tempData, alldata: resData, count: resData.length + 1,
             subject: resSub, curri: resCurri,
             search: { year: year, semester: semester, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             isLoad: false
@@ -451,6 +452,8 @@ export default class table extends Component {
                 <div className="Search_text" > ปีการศึกษา </div>
                 <Select className="Select_semester" name="select" defaultValue={search.year}
                     onChange={this.ChangeSearchYear} disabled={this.state.editingKey !== ''} >
+                    <Option className="Select_semester" value={2022} > 2022 </Option>
+                    <Option className="Select_semester" value={2021} > 2021 </Option>
                     <Option className="Select_semester" value={2020} > 2020 </Option>
                     <Option className="Select_semester" value={2019} > 2019 </Option>
                     <Option className="Select_semester" value={2018} > 2018 </Option>
@@ -893,12 +896,17 @@ export default class table extends Component {
     };
 
     ButtonTimeTable = async () => {
+        this.setState({
+            thisTimeTable: true,
+            isLoad: true
+        })
         let Data = await timetable()
         //console.log('test', Data)
         this.setState({
             data: Data,
             alldata: Data,
-            thisTimeTable: true
+            thisTimeTable: true,
+            isLoad: false
         })
     }
 

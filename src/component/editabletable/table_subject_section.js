@@ -64,7 +64,7 @@ const columns = [
         width: 90
     },
     {
-        title: 'break_time',
+        title: 'เวลาพัก',
         dataIndex: 'break_time',
         key: 'break_time',
         width: 90

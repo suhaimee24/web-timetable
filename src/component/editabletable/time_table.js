@@ -8,12 +8,14 @@ var time_CurriSec = [];
 var uniqueSubject = [];
 var StringResutl = [];
 var DataTimeTable = [];
-
+var year
+var semester
+var token
 
 async function timetable() {
 
     //Get Data from DataBase
-    let token = await axios.post("http://localhost:9000/API/login", {
+    token = await axios.post("http://localhost:9000/API/login", {
         username: 'admin',
         password: '1234'
     })
@@ -41,11 +43,31 @@ async function timetable() {
     })
     SubSec = SubSec.data;
 
+   
+
     // // Print for check Data from DB
     // console.log(currisub);
     // console.log(currisec);
     // console.log(SubSec);
 
+    var d = new Date();
+    semester = 1
+    year = d.getFullYear()
+    if (d.getMonth() > 8 || d.getMonth() < 3) {
+        semester = 2
+    }
+
+    let res = axios.delete("http://localhost:9000/API/teach_table/", {
+        data: {
+            semester: semester,
+            year: year
+        },
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+    })
+    console.log(res.data);
+    
     // Set Data before Calculate
     uniqueSubject = getUniqueSubject(SubSec);
     time_CurriSec = getTime_CurriSec(currisec);
@@ -1533,8 +1555,8 @@ function AddDataTimeTable(time_CurriSec) {
                 "subject_section": thisData2.subject_section,
                 "curr2_section": thisData.curr2_section,
                 "teach_time": thisData2.teach_time,
-                "semester": 1,
-                "year": 2020,
+                "semester": semester,
+                "year": year,
                 "curr2_id": thisData.curr2_id,
                 "teach_day": thisData2.teach_day,
                 "teach_time2": thisData2.teach_time2,
@@ -1545,7 +1567,35 @@ function AddDataTimeTable(time_CurriSec) {
         //console.log('')
     }
     DataTimeTable = SortAllData(DataTimeTable)
+    UpData(DataTimeTable)
+
     console.log("------------ END ADD DATA TIME TABLE ------------\n")
+}
+
+function UpData(DataTimeTable) {
+    console.log(token)
+    for (let i = 0; i < DataTimeTable.length; i++) {
+        let thisData2 = DataTimeTable[i]
+        let res = axios.post("http://localhost:9000/API/teach_table/", {
+            subject_id: thisData2.subject_id,
+            subject_section: thisData2.subject_section,
+            curr2_section: thisData2.curr2_section,
+            teach_time: thisData2.teach_time,
+            semester: thisData2.semester,
+            year: thisData2.year,
+            curr2_id: thisData2.curr2_id,
+            teach_day: thisData2.teach_day,
+            teach_time2: thisData2.teach_time2,
+            lect_or_prac: thisData2.lect_or_prac,
+            break_time: thisData2.break_time
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        })
+        console.log(res.data);
+    }
+
 }
 
 function PrintDataTimeTable(uniqueSubject) {
