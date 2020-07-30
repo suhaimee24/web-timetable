@@ -171,6 +171,8 @@ const daytest = [
 
 ];
 
+let Allyear = [2020, 2019, 2018]
+
 
 var datatest = [];
 let counttest = 0
@@ -203,7 +205,7 @@ export default class table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: datatest, alldata: datatest, count: datatest.length, editingKey: '',
+            data: datatest, alldata: datatest, count: datatest.length, editingKey: '', Allyear: Allyear,
             curri: curritest, subject: subjecttest, day: daytest, isLoad: true, thisAddData: false, thisTimeTable: false,
             search: { year: 2020, semester: 1, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             input: {
@@ -268,9 +270,16 @@ export default class table extends Component {
         resData = resData.sort(function (a, b) { return a.subject_section - b.subject_section });
         resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
 
+        var d = new Date();
+        var semester = 1
+        var year = d.getFullYear()
+        if (d.getMonth() > 8 || d.getMonth() < 3) {
+            semester = 2
+        }
         this.setState({
             data: resData, alldata: resData, count: resData.length + 1,
             subject: resSub, curri: resCurri,
+            search: { year: year, semester: semester, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             isLoad: false
         })
     }
@@ -436,7 +445,7 @@ export default class table extends Component {
     };
 
     renderSearch() {
-        const { subject, search, curri } = this.state;
+        const { subject, search, curri, Allyear } = this.state;
         return (
             <div className="Search_Display" >
                 <div className="Search_text" > ปีการศึกษา </div>
@@ -473,6 +482,8 @@ export default class table extends Component {
             </div>
         )
     }
+
+
 
 
     Edit(key) {

@@ -643,7 +643,7 @@ async function timetable() {
                     for (let k = 0; k < lastOldPathCurriSection.tempDataCurriSec.length; k++) {
                         let temp = lastOldPathCurriSection.tempDataCurriSec[k]
                         // Change Array To Json
-                        //temp = temp[0]
+                        temp = temp[0]
                         console.log(temp)
                         DataCurriSec.push(temp)
                     }
@@ -690,7 +690,7 @@ async function timetable() {
                         for (let k = 0; k < lastOldPathCurriSection.tempDataCurriSec.length; k++) {
                             let temp = lastOldPathCurriSection.tempDataCurriSec[k]
                             // Change Array To Json
-                            // temp = temp[0]
+                            temp = temp[0]
                             //console.log(temp)
                             DataCurriSec.push(temp)
                         }
