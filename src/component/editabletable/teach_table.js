@@ -797,9 +797,15 @@ export default class table extends Component {
         if (search.subject_id === "all") {
             console.log(alldata.filter(item => (item.year === search.year && item.semester === search.semester
                 && item.curr2_id === search.curr2_id)))
+            let temp = alldata.filter(item => (item.year === search.year && item.semester === search.semester
+                && item.curr2_id === search.curr2_id))
+            temp = this.SortDataBySection(temp)
+            // this.setState({
+            //     data: alldata.filter(item => (item.year === search.year && item.semester === search.semester
+            //         && item.curr2_id === search.curr2_id)),
+            // });
             this.setState({
-                data: alldata.filter(item => (item.year === search.year && item.semester === search.semester
-                    && item.curr2_id === search.curr2_id)),
+                data: temp,
             });
             return;
         }
@@ -877,11 +883,11 @@ export default class table extends Component {
 
     ButtonTimeTable = async () => {
         let Data = await timetable()
-        console.log('test', Data)
+        //console.log('test', Data)
         this.setState({
             data: Data,
             alldata: Data,
-            thisTimeTable:true
+            thisTimeTable: true
         })
     }
 
@@ -911,4 +917,55 @@ export default class table extends Component {
             </div>
         )
     };
+
+    SortDataBySection(dataTimeTable) {
+        for (let i = 0; i < dataTimeTable.length; i++) {
+            for (let j = i + 1; j < dataTimeTable.length; j++) {
+                if (dataTimeTable[i].curr2_section > dataTimeTable[j].curr2_section) {
+                    let Temp = dataTimeTable[i]
+                    dataTimeTable[i] = dataTimeTable[j]
+                    dataTimeTable[j] = Temp
+                }
+
+            }
+        }
+
+        for (let i = 0; i < dataTimeTable.length; i++) {
+            for (let j = i + 1; j < dataTimeTable.length; j++) {
+                if (dataTimeTable[i].curr2_section === dataTimeTable[j].curr2_section) {
+                    if (this.DaytoInt(dataTimeTable[i].teach_day) > this.DaytoInt(dataTimeTable[j].teach_day)) {
+                        let Temp = dataTimeTable[i]
+                        dataTimeTable[i] = dataTimeTable[j]
+                        dataTimeTable[j] = Temp
+                    }
+                }
+            }
+        }
+
+        for (let i = 0; i < dataTimeTable.length; i++) {
+            for (let j = i + 1; j < dataTimeTable.length; j++) {
+                if (dataTimeTable[i].curr2_section === dataTimeTable[j].curr2_section) {
+                    if (this.DaytoInt(dataTimeTable[i].teach_day) === this.DaytoInt(dataTimeTable[j].teach_day)) {
+                        if (this.decimalHours(dataTimeTable[i].teach_time) > this.decimalHours(dataTimeTable[j].teach_time)) {
+                            let Temp = dataTimeTable[i]
+                            dataTimeTable[i] = dataTimeTable[j]
+                            dataTimeTable[j] = Temp
+                        }
+                    }
+                }
+            }
+        }
+
+        return dataTimeTable
+    }
+
+    DaytoInt(teach_day) {
+        let day = ['', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        return day.findIndex(item => teach_day === item)
+    }
+
+    decimalHours(time) {
+        let str = time.split(":");
+        return (parseInt(str[0]) * 60 + parseInt(str[1]));
+    }
 }
