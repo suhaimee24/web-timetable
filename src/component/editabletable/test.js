@@ -51,7 +51,7 @@ async function timetable() {
     var d = new Date();
     semester = 1
     year = d.getFullYear()
-    if (d.getMonth() > 6) {
+    if (d.getMonth() < 5) {
         semester = 2
     }
     console.log('semester ', semester);
@@ -112,10 +112,10 @@ async function timetable() {
         let DataSubjectSec = SubSec.filter(item => item.subject_id === uniqueSubject[i].subject_id && item.lect_or_prac === uniqueSubject[i].lect_or_prac)
 
         //Print DataSubjectSec
-        // process.stdout.write(' DataSubjectSec : ')
-        // DataSubjectSec.forEach(item => {
-        //     process.stdout.write(item.subject_section + ' ')
-        // })
+        process.stdout.write(' DataSubjectSec : ')
+        DataSubjectSec.forEach(item => {
+            process.stdout.write(item.subject_section + ' ')
+        })
         console.log("")
 
 
@@ -128,7 +128,7 @@ async function timetable() {
 
         // Set for prioty 0 '01006028'
         if (getPriority(uniqueSubject[i].subject_id) === 0) {
-            continue
+            //continue
             for (let j = 0; j < DataSubjectSec.length; j++) {
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                 if (DataSubjectSec[j].teach_time === null) {
@@ -290,12 +290,16 @@ async function timetable() {
             let UniqueCurri = getUniqueCurri(DataCurriSec)
             let UniqueCurri2 = UniqueCurri
             //console.log('UniqueCurri', UniqueCurri)
+            if (uniqueSubject[i].subject_id === '01006024') {
+                UniqueCurri = UniqueCurri.sort(function (a, b) { return b.curr2_id - a.curr2_id });
+            }
 
-            // //Print UniqueCurri
-            // process.stdout.write(' UniqueCurri : ')
-            // UniqueCurri.forEach(item => {
-            //     process.stdout.write(item.curr2_id + ' ')
-            // })
+
+            //Print UniqueCurri
+            process.stdout.write(' UniqueCurri : ')
+            UniqueCurri.forEach(item => {
+                process.stdout.write(item.curr2_id + ' ')
+            })
             console.log("")
 
             // if( uniqueSubject[i].subject_id === '01006024')
@@ -322,12 +326,38 @@ async function timetable() {
                 //console.log('UniqueCurri', UniqueCurri)
 
                 // UniqueCurri = UniqueCurri.sort(function (a, b) { return parseInt(a.curr2_id) - parseInt(b.curr2_id) });
-                //Print UniqueCurri
-                // process.stdout.write(' UniqueCurri : ')
-                // UniqueCurri.forEach(item => {
-                //     process.stdout.write(item.curr2_id + ' ')
-                // })
+                // Print UniqueCurri
+                process.stdout.write(' UniqueCurri : ')
+                UniqueCurri.forEach(item => {
+                    process.stdout.write(item.curr2_id + ' ')
+                })
                 console.log("")
+
+                let TempDataCheck = []
+                if (DataSubjectSec[j].teach_time !== null) {
+                    for (let k = 0; k < DataCurriSec.length; k++) {
+                        checkOverlay = false
+
+                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
+                        //Check Overlay time Subject Section
+                        time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                            if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                                checkOverlay = true
+                                return;
+                            }
+                        })
+                        if (!checkOverlay) {
+                            TempDataCheck.push(DataCurriSec[k].curr2_section)
+                        }
+                    }
+                }
+                else {
+                    for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                        TempDataCheck.push(DataCurriSec[k].curr2_section)
+                    }
+
+                }
+                console.log('TempDataCheck ', TempDataCheck)
 
                 // Find path 
                 let last = false
@@ -368,7 +398,12 @@ async function timetable() {
                         PathCurriID = PathCurriID.filter(item => item !== Index)
                     }
                 }
-
+                if (PathCurriID.length === 0 && j === 0) {
+                    console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                    StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                    SelectPathCurriID = []
+                    break
+                }
                 //console.log("PathCurriID  After Oldpath ", PathCurriID)
                 if (PathCurriID.length === 0) {
                     let lastOldPathCurriID = []
@@ -380,6 +415,12 @@ async function timetable() {
                         }
                     });
                     //console.log(lastOldPathCurriID)
+                    if (lastOldPathCurriID.length === 0) {
+                        console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                        StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                        SelectPathCurriID = []
+                        break
+                    }
                     OldPathCurriID = OldPathCurriID.filter(item => (item.index_j < j))
                     for (let k = 0; k < lastOldPathCurriID.tempUniqueCurri.length; k++) {
                         let temp = lastOldPathCurriID.tempUniqueCurri[k]
@@ -560,21 +601,28 @@ async function timetable() {
         // Set for prioty 4 '01006021' '01006023' '01006025'
         if (getPriority(uniqueSubject[i].subject_id) === 4) {
             // if (uniqueSubject[i].subject_id === '01006021')
-            // continue
+            //continue
 
-            let DataCurriSec2 = DataCurriSec
+            //let DataCurriSec2 = DataCurriSec
             //console.log('DataCurriSec ', DataCurriSec)
 
-            // //Print DataCurriSec
-            // process.stdout.write(' DataCurriSec : ')
-            // DataCurriSec.forEach(item => {
-            //     process.stdout.write(item.curr2_section + ' ')
-            // })
-            //console.log("")
+            if (uniqueSubject[i].subject_id === '01006025') {
+                DataCurriSec = DataCurriSec.sort(function (a, b) { return b.curr2_section - a.curr2_section });
+            }
+
+            let DataCurriSec2 = DataCurriSec
+            //Print DataCurriSec
+            process.stdout.write(' DataCurriSec : ')
+            DataCurriSec.forEach(item => {
+                process.stdout.write(item.curr2_section + ' ')
+            })
+            console.log("")
 
 
             let averageCurriSec = parseInt(DataCurriSec.length / (DataSubjectSec.length))
             let avergeStudent = parseInt(SumOfStudent(DataCurriSec) / (DataSubjectSec.length))
+            let levelCurriSec = 2
+            let levelStudent = 50
             console.log(' averageCurriSec : ', averageCurriSec)
             console.log(' avergeStudent : ', avergeStudent)
             // console.log(SumOfStudent(DataCurriSec))
@@ -597,14 +645,40 @@ async function timetable() {
                     process.stdout.write(item.curr2_section + ' ')
                 })
                 console.log("")
+
+                let TempDataCheck = []
+                if (DataSubjectSec[j].teach_time !== null) {
+                    for (let k = 0; k < DataCurriSec.length; k++) {
+                        checkOverlay = false
+
+                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
+                        //Check Overlay time Subject Section
+                        time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                            if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                                checkOverlay = true
+                                return;
+                            }
+                        })
+                        if (!checkOverlay) {
+                            TempDataCheck.push(DataCurriSec[k].curr2_section)
+                        }
+                    }
+                }
+                else {
+                    for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                        TempDataCheck.push(DataCurriSec[k].curr2_section)
+                    }
+
+                }
+                console.log('TempDataCheck ', TempDataCheck)
                 // Find path 
                 let last = false
                 if (j === DataSubjectSec.length - 1) {
                     last = true
                 }
                 PathCurriSection = [];
-                findPathSection(DataCurriSec, averageCurriSec + 2, averageCurriSec - 2,
-                    avergeStudent + (50 * 2), avergeStudent - (50 * 2), last)
+                findPathSection(DataCurriSec, averageCurriSec + levelCurriSec, averageCurriSec - levelCurriSec,
+                    avergeStudent + (levelStudent * levelCurriSec), avergeStudent - (levelStudent * levelCurriSec), last)
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.student_sum - a.student_sum });
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.section_sum - a.section_sum });
                 // console.log('PathCurriSection', PathCurriSection)
@@ -828,8 +902,11 @@ async function timetable() {
                 DataSubjectSecP = DataSubjectSecP.sort(function (a, b) { return a.subject_section - b.subject_section });
 
                 let MaxAmount = 40
+                let LevelAmount = 10
                 let DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return a.curr2_section - b.curr2_section });
-                DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return Math.abs(MaxAmount - a.curr2_section_student_amount) - Math.abs(MaxAmount - b.curr2_section_student_amount) });
+                // DataCurriSecTemp = DataCurriSecTemp.sort(function (a, b) { return b.curr2_section_student_amount - a.curr2_section_student_amount });
+                // DataCurriSecTemp = DataCurriSecTemp.sort(function (a, b) { return a.curr2_section_student_amount - b.curr2_section_student_amount });
+                // DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return a.curr2_id - b.curr2_id });
 
                 // Print 
                 process.stdout.write(' DataCurriSecTemp : ')
@@ -841,6 +918,11 @@ async function timetable() {
 
                 let OldPathCurriSec = [];
                 let SelectPathCurriSec = [];
+                let AmountPerSec = [];
+                let checkOverlay = false
+                for (let j = 0; j < DataSubjectSec.length; j++) {
+                    AmountPerSec.push({ amount: 0, curr2_section: [] })
+                }
                 for (let j = 0; j < DataSubjectSec.length; j++) {
                     if (j >= DataSubjectSecP.length) {
                         console.log(`Subject_id ${uniqueSubject[i].subject_id} P less than Subject_id ${uniqueSubject[i].subject_id} L`)
@@ -850,308 +932,200 @@ async function timetable() {
                     console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section L ${DataSubjectSec[j].subject_section}----`)
                     console.log(`----DataSubjectSec ${DataSubjectSecP[j].subject_id} Section P ${DataSubjectSecP[j].subject_section}----`)
 
-                    console.log('DataCurriSecTemp', DataCurriSecTemp)
-                    // // Print 
-                    // process.stdout.write(' DataCurriSecTemp : ')
-                    // DataCurriSecTemp.forEach(item => {
-                    //     process.stdout.write(item.curr2_section + ' ')
-                    // })
-                    console.log("")
+                    //console.log('DataCurriSecTemp', DataCurriSecTemp)
+                    // Print 
+                    process.stdout.write(' DataCurriSecTemp : ')
+                    DataCurriSecTemp.forEach(item => {
+                        process.stdout.write(item.curr2_section + ' ' + item.curr2_section_student_amount + ' ,')
+                    })
+                    console.log('')
+                    let TempDataCheck = []
+                    if (DataSubjectSec[j].teach_time !== null) {
+                        for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                            checkOverlay = false
+                            let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSecTemp[k].curr2_section === item.curr2_section))
+
+                            time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                                if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+
+                                    checkOverlay = true
+                                    return;
+                                }
+                                if (CheckTimeOverlay(item, DataSubjectSecP[j]) === -1) {
+                                    checkOverlay = true
+                                    return;
+                                }
+                            })
+                            if (!checkOverlay) {
+                                TempDataCheck.push(DataCurriSecTemp[k].curr2_section)
+                            }
+                        }
+                    }
+                    else {
+                        for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                            TempDataCheck.push(DataCurriSecTemp[k].curr2_section)
+                        }
+
+                    }
+                    console.log(TempDataCheck)
+
                     if (DataCurriSecTemp.length === 0) {
                         console.log(`Subject_id ${uniqueSubject[i].subject_id} Section ${uniqueSubject[i].subject_section} Do not have DataCurriSec`)
                         StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} Section ${uniqueSubject[i].subject_section} Do not have DataCurriSec`)
                         continue
                     }
-                    let AllPath = []
+                    let isAll = true
+                    if (AmountPerSec[j].amount !== 0) {
+                        let index_temp = TempDataCheck.findIndex(item => (item === AmountPerSec[j].curr2_section[0].curr2_section))
+                        console.log('index_temp ', index_temp)
+                        if (index_temp === -1) {
+
+                            let index_ = DataCurriSecTemp.findIndex(item => (item.curr2_section === AmountPerSec[j].curr2_section[0].curr2_section))
+                            if (index_ > -1) {
+                                console.log('Before AmountPerSec[j].curr2_section[0].curr2_section ', AmountPerSec[j].curr2_section[0].curr2_section)
+
+                                DataCurriSecTemp[index_].curr2_section_student_amount += AmountPerSec[j].amount
+                                AmountPerSec[j].amount = 0
+                                AmountPerSec[j].curr2_section = []
+                            }
+                        }
+                    }
                     for (let k = 0; k < DataCurriSecTemp.length; k++) {
-                        let Item1 = DataCurriSecTemp[k]
-                        let student_sum = Item1.curr2_section_student_amount
-                        if (student_sum <= MaxAmount && student_sum >= MaxAmount - 5) {
-                            AllPath.push({ student_sum: student_sum, path: [Item1.curr2_section], AmountUse: [Item1.curr2_section_student_amount] })
+                        //console.log('DataCurriSecTemp', DataCurriSecTemp[k])
+
+                        if (DataCurriSecTemp[k].curr2_section_student_amount === 0) {
                             continue
                         }
-                        for (let l = 0; l < DataCurriSecTemp.length; l++) {
-                            if (l === k) {
+                        checkOverlay = false
+                        if (DataSubjectSec[j].teach_time !== null) {
+                            console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                                `to curr2_section ${DataCurriSecTemp[k].curr2_section}`)
+                            let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSecTemp[k].curr2_section === item.curr2_section))
+                            //Check Overlay time Subject Section
+                            time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                                if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                                    console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                    checkOverlay = true
+                                    return;
+                                }
+                                if (CheckTimeOverlay(item, DataSubjectSecP[j]) === -1) {
+                                    console.log(item, 'Overlay', DataSubjectSecP[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                    checkOverlay = true
+                                    return;
+                                }
+                            })
+                            if (checkOverlay) {
+                                console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                                    `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
                                 continue
                             }
-                            let Item2 = DataCurriSecTemp[l]
-                            if (student_sum + Item2.curr2_section_student_amount <= MaxAmount && student_sum + Item2.curr2_section_student_amount >= MaxAmount - 5) {
-                                student_sum += Item2.curr2_section_student_amount
-                                AllPath.push({
-                                    student_sum: student_sum, path: [Item1.curr2_section, Item2.curr2_section],
-                                    AmountUse: [Item1.curr2_section_student_amount, Item2.curr2_section_student_amount]
-                                })
-                            }
                         }
-                    }
-                    console.log('AllPath ', AllPath)
-
-                    if (OldPathCurriSec.length > 0) {
-                        console.log('OldPathCurriSec ', OldPathCurriSec[0].tempDataCurriSec)
-                    }
-                    //Delete Old path like Recursive Function
-                    for (let k = 0; k < OldPathCurriSec.length; k++) {
-                        //console.log(OldPathCurriSec[k])
-                        if (OldPathCurriSec[k].index_j === j) {
-                            let Index = []
-                            PathCurriID.forEach(item => {
-                                let check = 0
-                                for (let l = 0; l < item.path.length; l++) {
-                                    if (item.path[l] === OldPathCurriSec[k].path[l]) {
-                                        check++
+                        console.log('Amount ', AmountPerSec[j], ' j ', j, 'csa ', DataCurriSecTemp[k].curr2_section_student_amount, ' curr2_section ', DataCurriSecTemp[k].curr2_section)
+                        if (AmountPerSec[j].amount === 0) {
+                            isAll = false
+                            let curr2_section = DataCurriSecTemp[k].curr2_section
+                            if (DataCurriSecTemp[k].curr2_section_student_amount >= MaxAmount - LevelAmount) {
+                                
+                                if (DataCurriSecTemp[k].curr2_section_student_amount > MaxAmount) {
+                                    AmountPerSec[j].amount = MaxAmount
+                                    AmountPerSec[j].curr2_section.push({ curr2_section })
+                                    DataCurriSecTemp[k].curr2_section_student_amount -= MaxAmount
+                                    SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
+                                    if (j + 1 < DataSubjectSec.length && DataCurriSecTemp[k].curr2_section_student_amount <= MaxAmount) {
+                                        AmountPerSec[j + 1].amount = DataCurriSecTemp[k].curr2_section_student_amount
+                                        AmountPerSec[j + 1].curr2_section.push({ curr2_section })
+                                        DataCurriSecTemp[k].curr2_section_student_amount = 0
                                     }
+                                    break
                                 }
-                                if (check === item.path.length && check === OldPathCurriSec[k].path.length) {
-                                    //console.log(item,OldPathCurriSec[k].path)
-                                    Index = item;
-                                }
-                            });
-                            AllPath = AllPath.filter(item => item !== Index)
-                        }
-                    }
-                    if (AllPath.length === 0) {
-                        let lastOldPathCurriSec = []
-                        OldPathCurriSec.forEach(item => {
-                            //console.log(item)
-                            if (item.index_j === j - 1) {
-                                //console.log(item,OldPathCurriSec[k].path)
-                                lastOldPathCurriSec = item;
+                                AmountPerSec[j].amount = DataCurriSecTemp[k].curr2_section_student_amount
+                                AmountPerSec[j].curr2_section.push({ curr2_section })
+                                DataCurriSecTemp[k].curr2_section_student_amount = 0
+                                SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
+                                break
                             }
-                        });
-                        console.log('AllPath = 0 lastOldPathCurriSec ', lastOldPathCurriSec)
-                        if (lastOldPathCurriSec.length === 0) {
-                            console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
-                            StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
-                            SelectPathCurriSec = []
+                            AmountPerSec[j].amount = DataCurriSecTemp[k].curr2_section_student_amount
+                            AmountPerSec[j].curr2_section.push({ curr2_section })
+                            DataCurriSecTemp[k].curr2_section_student_amount = 0
+                        }
+
+                        if (AmountPerSec[j].amount >= MaxAmount - LevelAmount && AmountPerSec[j].amount <= MaxAmount) {
+                            isAll = false
+                            console.log('Amount ~ max')
+                            SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
                             break
                         }
-                        OldPathCurriSec = OldPathCurriSec.filter(item => (item.index_j < j))
-                        for (let k = 0; k < lastOldPathCurriSec.tempDataCurriSec.length; k++) {
-                            let temp = lastOldPathCurriSec.tempDataCurriSec[k]
-                            console.log('temp AllPath = 0 ', temp)
-                            let index_DataCurriSecTemp = DataCurriSecTemp.findIndex(item => (item.curr2_section === item.curr2_section))
-                            if (index_DataCurriSecTemp > -1) {
-                                DataCurriSecTemp[index_DataCurriSecTemp].curr2_section_student_amount = temp.curr2_section_student_amount
-                                continue
+
+                        if (AmountPerSec[j].amount + DataCurriSecTemp[k].curr2_section_student_amount >= MaxAmount - LevelAmount) {
+                            isAll = false
+                            console.log('Amount + c s a > max')
+                            let curr2_section = DataCurriSecTemp[k].curr2_section
+                            // let curr2_section2 = AmountPerSec[j].curr2_section[0]
+                            // if()
+                            DataCurriSecTemp[k].curr2_section_student_amount -= (MaxAmount - AmountPerSec[j].amount)
+                            AmountPerSec[j].amount = MaxAmount
+                            AmountPerSec[j].curr2_section.push({ curr2_section })
+                            SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
+                            if (j + 1 < DataSubjectSec.length && DataCurriSecTemp[k].curr2_section_student_amount <= MaxAmount) {
+                                AmountPerSec[j + 1].amount = DataCurriSecTemp[k].curr2_section_student_amount
+                                AmountPerSec[j + 1].curr2_section.push({ curr2_section })
+                                DataCurriSecTemp[k].curr2_section_student_amount = 0
                             }
-                            DataCurriSecTemp.push(temp)
+                            break
                         }
-                        j = j - 2
+                    }
+
+                    if (checkOverlay) {
+                        console.log('inOverlay Amount ', AmountPerSec[j], ' j ', j,)
+
+                        AmountPerSec[j + 1] = AmountPerSec[j]
+                        if (AmountPerSec[j].amount !== 0) {
+                            console.log('test AmountPerSec[j].curr2_section ', AmountPerSec[j].curr2_section[0].curr2_section)
+                            // let index_DataCurriSec = DataCurriSecTemp.findIndex(item => { item.curr2_section === AmountPerSec[j].curr2_section[0] })
+                            // if (index_DataCurriSec > -1) {
+
+                            // }
+                        }
                         continue
                     }
-
-                    //Loop for Find path is not overlay 
-                    while (true) {
-                        // Find Min Path 
-                        let AbsMinSection = MaxAmount
-                        let AbsMinStudent = MaxAmount
-                        let PathTemp = []
-                        let TempItem = []
-                        AllPath.forEach(item => {
-                            if (AbsMinSection > Math.abs(item.student_sum - MaxAmount)
-                                && AbsMinStudent > item.path.length) {
-                                AbsMinSection = Math.abs(item.student_sum - MaxAmount)
-                                AbsMinStudent = item.path.length
-                                PathTemp = item.path
-                                TempItem = item
-                            }
-                        })
-                        console.log(AbsMinSection, AbsMinStudent, PathTemp)
-                        if (AbsMinSection === MaxAmount && AbsMinStudent === MaxAmount) {
-                            let lastOldPathCurriSec = []
-                            OldPathCurriSec.forEach(item => {
-                                //console.log(item)
-                                if (item.index_j === j - 1) {
-                                    //console.log(item,OldPathCurriSec[k].path)
-                                    lastOldPathCurriSec = item;
-                                }
-                            });
-                            //console.log(lastOldPathCurriSec)
-                            //OldPathCurriSec = OldPathCurriSec.filter(item => (item !== lastOldPathCurriSec))
-                            for (let k = 0; k < lastOldPathCurriSec.tempDataCurriSec.length; k++) {
-                                let temp = lastOldPathCurriSec.tempDataCurriSec[k]
-                                console.log('temp in while', temp)
-                                let index_DataCurriSecTemp = DataCurriSecTemp.findIndex(item => (item.curr2_section === item.curr2_section))
-                                if (index_DataCurriSecTemp > -1) {
-                                    DataCurriSecTemp[index_DataCurriSecTemp].curr2_section_student_amount = temp.curr2_section_student_amount
-                                    continue
-                                }
-                                DataCurriSecTemp.push(temp)
-                            }
-                            j = j - 2
-                            break
-                        }
-                        if (DataSubjectSec[j].teach_time === null) {
-                            let tempDataCurriSec = []
-                            for (let k = 0; k < PathTemp.length; k++) {
-                                let temp = DataCurriSecTemp.filter(item => item.curr2_section === PathTemp[k])
-                                temp = temp[0]
-                                tempDataCurriSec.push(temp)
-                                console.log('tempDataCurriSec before minas data', tempDataCurriSec)
-                                let index_DataCurriSecTemp = DataCurriSecTemp.findIndex(item => (item.curr2_section === item.curr2_section))
-                                if (index_DataCurriSecTemp > -1) {
-                                    DataCurriSecTemp[index_DataCurriSecTemp].curr2_section_student_amount -= TempItem.AmountUse[k]
-                                    if (DataCurriSecTemp[index_DataCurriSecTemp].curr2_section_student_amount === 0) {
-                                        DataCurriSecTemp = DataCurriSecTemp.filter(item => (item !== DataCurriSecTemp[index_DataCurriSecTemp]))
-                                    }
-                                    continue
-                                }
-                            }
-                            console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                                `to SelectPathCurriSection Time Null`)
-                            //console.log(PathTemp)
-                            console.log('tempDataCurriSec before keep data', tempDataCurriSec)
-                            OldPathCurriSec.push({ index_j: j, path: PathTemp, tempDataCurriSec: tempDataCurriSec })
-                            SelectPathCurriSec[j] = PathTemp
-                            break
-                        }
-
-                        //console.log(' breakkk ', breakkk)
-                    }
-
-
-
-
-                    //Print Section
-                    // console.log('Before In Loop')
-                    // process.stdout.write(' Section : ')
-                    // Section.forEach(item => {
-                    //     process.stdout.write(item.curr2_section + ' ')
-                    // })
-                    // console.log("")
-                    continue
-                    console.log(' SumAmount ', SumAmount)
-
-                    //Check before 
-                    if (DataCurriSecTemp.length === 0 && Section.length === 0) {
-                        console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} Do not have DataCurriSec`)
-                        StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} Do not have DataCurriSec`)
-                        continue
-                    }
-
-                    let k = 0
-                    while (true) {
-                        // console.log('Amount ', DataCurriSecTemp[k].curr2_section_student_amount)
-                        // console.log('Section ', DataCurriSecTemp[k].curr2_section)
-                        if (k >= DataCurriSecTemp.length) {
-                            break
-                        }
-                        if (MaxAmount >= SumAmount + DataCurriSecTemp[k].curr2_section_student_amount) {
-                            Section.push(DataCurriSecTemp[k])
-                            SumAmount += DataCurriSecTemp[k].curr2_section_student_amount
-                        }
-                        k++
+                    if (isAll && AmountPerSec[j].amount > 0 && !checkOverlay) {
+                        SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
 
                     }
-
-                    //Clear Data
-                    for (let k = 0; k < Section.length; k++) {
-                        //console.log(Section[k].curr2_section)
-                        DataCurriSecTemp = DataCurriSecTemp.filter(item => item.curr2_section !== Section[k].curr2_section)
-                    }
-
-                    dataLeft = { CurriSec: '', amount: 0 }
-                    if (SumAmount < MaxAmount && DataCurriSecTemp.length > 0) {
-                        // console.log("min-----")
-                        let temp = DataCurriSecTemp[0]
-                        let minAmount = temp.curr2_section_student_amount
-                        DataCurriSecTemp.forEach(item => {
-                            if (minAmount > item.curr2_section_student_amount) {
-                                temp = item
-                                minAmount = temp.curr2_section_student_amount
-                            }
-                        })
-
-
-                        // console.log('minAmount ', minAmount)
-                        // console.log('curr2_section ', temp.curr2_section)
-
-                        let amountLeft = MaxAmount - SumAmount
-                        dataLeft = { CurriSec: temp, amount: temp.curr2_section_student_amount - amountLeft }
-                        Section.push(temp)
-                        SumAmount += amountLeft
-                        DataCurriSecTemp = DataCurriSecTemp.filter(item => item.curr2_section !== temp.curr2_section)
-                    }
-
-                    if (SumAmount > MaxAmount && Section.length === 1) {
-                        // console.log("SumAmount > MaxAmount")
-                        let temp = Section[0]
-                        let minAmount = SumAmount
-
-                        // console.log('SumAmount ', minAmount)
-                        // console.log('curr2_section ', temp.curr2_section)
-                        dataLeft = { CurriSec: temp, amount: SumAmount - MaxAmount }
-
-                    }
-
-
-                    //console.log('Section ', Section)
-                    // //Print Section
-                    // console.log('After Loop')
-                    // process.stdout.write(' Section : ')
-                    // Section.forEach(item => {
-                    //     process.stdout.write(item.curr2_section + ' ')
-                    // })
-                    console.log("")
-                    console.log(' SumAmount ', SumAmount)
-
-                    if (DataSubjectSec[j].teach_time === null || DataSubjectSec[j].teach_time === '00:00:00') {
-
-                        console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to SelectPathCurriSec `)
-
-                        SelectPathCurriSec[j] = Section
-                        continue
-                    }
-
-                    // let checkOverlay = false
-                    // for (let k = 0; k < PathTemp.length; k++) {
-                    //     console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                    //         `to curr2_id ${PathTemp[k]}`)
-                    //     let UniqueCurri_index = UniqueCurri.findIndex(item => (PathTemp[k] === item.curr2_id))
-                    //     for (let l = 0; l < UniqueCurri[UniqueCurri_index].section.length; l++) {
-
-                    //         console.log(UniqueCurri[UniqueCurri_index].section[l])
-                    //         let time_CurriSec_index = time_CurriSec.findIndex(item =>
-                    //             (UniqueCurri[UniqueCurri_index].section[l] === item.curr2_section))
-
-                    //         //Check Overlay time Subject Section
-                    //         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
-                    //             if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-                    //                 console.log(item, DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].section)
-                    //                 checkOverlay = true
-                    //                 return;
-                    //             }
-                    //         })
-                    //         if (checkOverlay) {
-                    //             console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                    //                 `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
-                    //             break
-                    //         }
-                    //     }
-                    //     if (checkOverlay) {
-                    //         break
-                    //     }
-
-                    // }
-
-                    //break
-
 
                 }
-                for (let j = 0; j < SelectPathCurriSec.length; j++) {
+
+                let isNotEmpty = false
+                for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                    if (DataCurriSecTemp[k].curr2_section_student_amount > 0) {
+                        isNotEmpty = true
+                        break
+                    }
+                }
+                if (isNotEmpty) {
+                    console.log(`Subject_id ${uniqueSubject[i].subject_id} Have Some Amount Student`)
+                    StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} Have Some Amount Student`)
+                }
+                console.log('SelectPathCurriSec')
+                for (let j = 0; j < DataSubjectSec.length; j++) {
                     console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                     let tempCurri = []
                     let temp = SelectPathCurriSec[j]
+                    if (temp === undefined) {
+                        console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have SelectPathCurriSec[j]`)
+                        StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have SelectPathCurriSec[j]`)
+                        continue
+                    }
+                    //console.log('temp ',temp)
                     for (let k = 0; k < temp.length; k++) {
-                        tempCurri.push(DataCurriSec.find(item => (item.curr2_section === temp[k])))
+                        //console.log('temp[k].curr2_section ',temp[k].curr2_section)
+                        tempCurri.push(DataCurriSec.find(item => (item.curr2_section === temp[k].curr2_section)))
                     }
 
                     if (DataSubjectSec[j].teach_time === null) {
                         let tempSubject = []
                         tempSubject[0] = DataSubjectSec[j]
                         tempSubject[1] = DataSubjectSecP[j]
-
                         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                             `to DataNotime`)
                         let temp = { SubjectSec: tempSubject, CurriSec: tempCurri }
@@ -1164,6 +1138,7 @@ async function timetable() {
                             (tempCurri[k].curr2_section === item.curr2_section))
                         if (time_CurriSec_index > -1) {
                             time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
+                            time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSecP[j])
                             console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                                 `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
                         }
@@ -1172,7 +1147,6 @@ async function timetable() {
             }
             continue
         }
-
 
         // let checkRe = 0;
         // let OldPath = [];
@@ -1386,6 +1360,57 @@ function findPathSectionRe(tempdata, num, section_sum, student_sum, path, studen
     }
 }
 
+
+function findPathSection2(data, max, min, student_break, student_break2, last) {
+    if (last) {
+        findPathSection2Re(data, data.length, 0, 0, [], student_break, student_break2)
+    }
+    else {
+        if (min < 1) {
+            min = 1
+        }
+        for (let i = max; i >= min; i--) {
+            findPathSection2Re(data, i, 0, 0, [], student_break, student_break2)
+        }
+    }
+}
+
+function findPathSection2Re(tempdata, num, section_sum, student_sum, path, student_break, student_break2) {
+    if (num === 0) {
+        if (student_sum >= student_break || student_sum <= student_break2) {
+            return
+        }
+        let datatemp = PathCurriSection.filter(item => item.section_sum === section_sum && item.student_sum === student_sum);
+        if (datatemp.length > 0) {
+            for (let k = 0; k < datatemp.length; k++) {
+                if (datatemp[k].path.length === path.length) {
+                    let check = 0;
+                    datatemp[k].path = datatemp[k].path.sort()
+                    path = path.sort()
+                    for (let i = 0; i < datatemp[k].path.length; i++) {
+                        for (let j = 0; j < path.length; j++) {
+                            if (datatemp[k].path[i] === path[j]) {
+                                check++;
+                                break;
+                            }
+                        }
+                    }
+                    if (check === datatemp[k].path.length) {
+                        return
+                    }
+                }
+            }
+        }
+        PathCurriSection.push({ section_sum: section_sum, student_sum: student_sum, path: path })
+        return;
+    }
+    for (let i = 0; i < tempdata.length; i++) {
+        let temp = tempdata[i]
+        tempData = tempdata.filter(item => item.curr2_section !== tempdata[i].curr2_section);
+        findPathSection2Re(tempData, num - 1, section_sum + 1, student_sum + temp.curr2_section_student_amount, [...path, temp.curr2_section],
+            student_break, student_break2)
+    }
+}
 //Set Global variable 
 
 var PathCurriID = [];
@@ -1748,7 +1773,7 @@ function findTimeSlot(Data) {
     //console.log('TimeSum ', TimeSum)
     //console.log(`to curr2_section : `)
 
-    let TimePeriodData = TimePeriod()
+    let TimePeriodData = TimePeriod(TimeSum)
     let TimeSlot = []
     for (let i = 0; i < TimePeriodData.length; i++) {
         let checkOverlay = false
@@ -1877,27 +1902,46 @@ function findTimeSlot(Data) {
     return TimeSlot
 }
 
-function TimePeriod() {
+function TimePeriod(TimeSum) {
     // let TimePeriod = [
     //     { preiod: 1,teach_day:'mon' },
     // ]
     let TimePeriod = []
     let day = ['mon', 'tue', 'thu', 'fri', 'sat', 'sun']
     //let day = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-    for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
-        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+    if (decimalHours('01:30') >= TimeSum) {
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+            TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+            TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
+        }
+        for (let i = 4; i < day.length; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+            TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+            TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
     }
-    for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
-    }
-    for (let i = 4; i < day.length; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
-        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+    else {
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '09:30:00', teach_time2: '12:00:00' })
+            //TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '15:30:00' })
+            //TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
+        }
+        for (let i = 4; i < day.length; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '09:30:00', teach_time2: '12:00:00' })
+            // TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '15:30:00' })
+            // TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
     }
 
 
@@ -1906,38 +1950,27 @@ function TimePeriod() {
 }
 
 function SortSubject(subject) {
-    for (let i = 0; i < subject.length; i++) {
-        for (let j = i + 1; j < subject.length; j++) {
-            if (subject[i].subject_section > subject[j].subject_section) {
-                let Temp = subject[i]
-                subject[i] = subject[j]
-                subject[j] = Temp
-            }
-        }
+    // for (let i = 0; i < subject.length; i++) {
+    //     for (let j = i + 1; j < subject.length; j++) {
+    //         if (subject[i].subject_section > subject[j].subject_section) {
+    //             let Temp = subject[i]
+    //             subject[i] = subject[j]
+    //             subject[j] = Temp
+    //         }
+    //     }
 
-    }
+    // }
 
-    for (let i = 0; i < subject.length; i++) {
-        for (let j = i + 1; j < subject.length; j++) {
-            if (subject[i].subject_id > subject[j].subject_id) {
-                let Temp = subject[i]
-                subject[i] = subject[j]
-                subject[j] = Temp
-            }
-        }
+    // for (let i = 0; i < subject.length; i++) {
+    //     for (let j = i + 1; j < subject.length; j++) {
+    //         if (subject[i].subject_id > subject[j].subject_id) {
+    //             let Temp = subject[i]
+    //             subject[i] = subject[j]
+    //             subject[j] = Temp
+    //         }
+    //     }
 
-    }
-
-    for (let i = 0; i < subject.length; i++) {
-        for (let j = i + 1; j < subject.length; j++) {
-            if (decimalHours(subject[i].teach_time) > decimalHours(subject[j].teach_time)) {
-                let Temp = subject[i]
-                subject[i] = subject[j]
-                subject[j] = Temp
-            }
-        }
-
-    }
+    // }
     for (let i = 0; i < subject.length; i++) {
         for (let j = i + 1; j < subject.length; j++) {
             if (DaytoInt(subject[i].teach_day) > DaytoInt(subject[j].teach_day)) {
@@ -1948,6 +1981,20 @@ function SortSubject(subject) {
         }
 
     }
+
+    for (let i = 0; i < subject.length; i++) {
+        for (let j = i + 1; j < subject.length; j++) {
+            if (DaytoInt(subject[i].teach_day) === DaytoInt(subject[j].teach_day)) {
+                if (decimalHours(subject[i].teach_time) > decimalHours(subject[j].teach_time)) {
+                    let Temp = subject[i]
+                    subject[i] = subject[j]
+                    subject[j] = Temp
+                }
+            }
+        }
+
+    }
+
     return subject
 }
 

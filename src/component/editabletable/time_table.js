@@ -43,7 +43,7 @@ async function timetable() {
     })
     SubSec = SubSec.data;
 
-   
+
 
     // // Print for check Data from DB
     // console.log(currisub);
@@ -139,7 +139,7 @@ async function timetable() {
 
         // Set for prioty 0 '01006028'
         if (getPriority(uniqueSubject[i].subject_id) === 0) {
-            continue
+            //continue
             for (let j = 0; j < DataSubjectSec.length; j++) {
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                 if (DataSubjectSec[j].teach_time === null) {
@@ -582,6 +582,8 @@ async function timetable() {
 
             let averageCurriSec = parseInt(DataCurriSec.length / (DataSubjectSec.length))
             let avergeStudent = parseInt(SumOfStudent(DataCurriSec) / (DataSubjectSec.length))
+            let levelCurriSec = 2
+            let levelStudent = 50
             console.log(' averageCurriSec : ', averageCurriSec)
             console.log(' avergeStudent : ', avergeStudent)
             avergeStudent = 140
@@ -610,8 +612,8 @@ async function timetable() {
                     last = true
                 }
                 PathCurriSection = [];
-                findPathSection(DataCurriSec, averageCurriSec + 2, averageCurriSec - 2,
-                    avergeStudent + (50 * 2), avergeStudent - (50 * 2), last)
+                findPathSection(DataCurriSec, averageCurriSec + levelCurriSec, averageCurriSec - levelCurriSec,
+                    avergeStudent + (levelStudent * levelCurriSec), avergeStudent - (levelStudent * levelCurriSec), last)
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.student_sum - a.student_sum });
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.section_sum - a.section_sum });
                 // console.log('PathCurriSection', PathCurriSection)
@@ -1755,7 +1757,7 @@ function findTimeSlot(Data) {
     //console.log('TimeSum ', TimeSum)
     //console.log(`to curr2_section : `)
 
-    let TimePeriodData = TimePeriod()
+    let TimePeriodData = TimePeriod(TimeSum)
     let TimeSlot = []
     for (let i = 0; i < TimePeriodData.length; i++) {
         let checkOverlay = false
@@ -1884,27 +1886,46 @@ function findTimeSlot(Data) {
     return TimeSlot
 }
 
-function TimePeriod() {
+function TimePeriod(TimeSum) {
     // let TimePeriod = [
     //     { preiod: 1,teach_day:'mon' },
     // ]
     let TimePeriod = []
     let day = ['mon', 'tue', 'thu', 'fri', 'sat', 'sun']
     //let day = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-    for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
-        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+    if (decimalHours('01:30') >= TimeSum) {
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+            TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+            TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
+        }
+        for (let i = 4; i < day.length; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
+            TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
+            TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
     }
-    for (let i = 0; i < 4; i++) {
-        TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
-    }
-    for (let i = 4; i < day.length; i++) {
-        TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '10:30:00', teach_time2: '12:00:00' })
-        TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
-        TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '14:30:00' })
-        TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+    else {
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '09:30:00', teach_time2: '12:00:00' })
+            //TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '15:30:00' })
+            //TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
+        for (let i = 0; i < 4; i++) {
+            TimePeriod.push({ period: 4, teach_day: day[i], teach_time: '16:30:00', teach_time2: '18:00:00' })
+        }
+        for (let i = 4; i < day.length; i++) {
+            TimePeriod.push({ period: 1, teach_day: day[i], teach_time: '09:30:00', teach_time2: '12:00:00' })
+            // TimePeriod.push({ period: 0, teach_day: day[i], teach_time: '08:45:00', teach_time2: '10:15:00' })
+            TimePeriod.push({ period: 2, teach_day: day[i], teach_time: '13:00:00', teach_time2: '15:30:00' })
+            // TimePeriod.push({ period: 3, teach_day: day[i], teach_time: '14:45:00', teach_time2: '16:15:00' })
+        }
     }
 
 

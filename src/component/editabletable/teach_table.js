@@ -269,7 +269,7 @@ export default class table extends Component {
         //sort data by subject_section and subject_id
         // resData = resData.sort(function (a, b) { return a.subject_section - b.subject_section });
         // resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
-        
+
         var d = new Date();
         var semester = 1
         var year = d.getFullYear()
@@ -638,7 +638,10 @@ export default class table extends Component {
                 ...this.state.search,
                 year: value,
             }
+        }, () => {
+            this.ButtonSearch()
         })
+
     };
 
     ChangeSearchSemester = (value) => {
@@ -647,7 +650,10 @@ export default class table extends Component {
                 ...this.state.search,
                 semester: value,
             }
+        }, () => {
+            this.ButtonSearch()
         })
+
     };
 
     ChangeSearchCurri = (value) => {
@@ -657,7 +663,10 @@ export default class table extends Component {
                 curr2_id: value,
 
             }
+        }, () => {
+            this.ButtonSearch()
         })
+
     };
 
     ChangeSearchSubject = (value) => {
@@ -670,6 +679,8 @@ export default class table extends Component {
                     subject_id: value,
                     subject_ename: subject[index].subject_ename,
                 }
+            }, () => {
+                this.ButtonSearch()
             })
         }
         else {
@@ -679,6 +690,8 @@ export default class table extends Component {
                     subject_id: value,
                     subject_ename: '',
                 }
+            }, () => {
+                this.ButtonSearch()
             })
         }
 
@@ -902,7 +915,7 @@ export default class table extends Component {
         })
         let Data = await timetable()
         //console.log('test', Data)
-        if(Data === undefined){
+        if (Data === undefined) {
             Data = []
         }
         this.setState({

@@ -411,6 +411,8 @@ export default class table extends Component {
       search: {
         curr2_id: value
       }
+    }, () => {
+      this.ButtonSearch()
     })
   };
 
@@ -492,11 +494,11 @@ export default class table extends Component {
 
   ButtonExport = () => {
     console.log("Export")
-    const { data, curri} = this.state
+    const { data, curri } = this.state
     if (data.length === 0) {
       alert("ยังไม่มีข้อมูลไม่สามารถ Export ได้")
       return;
-  }
+    }
     let temp = []
     data.forEach(item => {
       temp.push({

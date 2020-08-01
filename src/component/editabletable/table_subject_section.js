@@ -607,6 +607,8 @@ export default class table extends Component {
                     subject_id: value,
                     subject_ename: 'วิชาทั้งหมด'
                 }
+            }, () => {
+                this.ButtonSearch()
             })
             return;
         }
@@ -616,6 +618,8 @@ export default class table extends Component {
                 subject_id: value,
                 subject_ename: subject[index].subject_ename,
             }
+        }, () => {
+            this.ButtonSearch()
         })
     };
 

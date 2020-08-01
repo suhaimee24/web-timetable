@@ -107,7 +107,7 @@ for (let i = 0; i < curritest.length; i++) {
 }
 datatest = datatest.sort(function (a, b) { return a.subject_id - b.subject_id });
 datatest = datatest.sort(function (a, b) { return a.curr2_id - b.curr2_id });
-let datatemp = datatest.filter(item => (item.curr2_id === "07"))
+let datatemp = datatest.filter(item => (item.curr2_id === "07" && item.semester === 1))
 
 
 
@@ -117,7 +117,7 @@ export default class table extends Component {
         this.state = {
             data: datatemp, alldata: datatest, count: datatest.length, editingKey: '', token: '',
             curri: curritest, subject: subjecttest, isLoad: true, thisAddData: false,
-            search: { semester: 'all', curr2_id: '06' },
+            search: { semester: 1, curr2_id: '01' },
             input: { curr2_id: '', subject_id: '', subject_ename: '', semester: '' },
         }
     }
@@ -169,7 +169,7 @@ export default class table extends Component {
         resData = resData.sort(function (a, b) { return a.subject_id - b.subject_id });
         resData = resData.sort(function (a, b) { return a.curr2_id - b.curr2_id });
 
-        let datatemp = resData.filter(item => (item.curr2_id === "06"))
+        let datatemp = resData.filter(item => (item.curr2_id === this.state.search.curr2_id && item.semester === this.state.search.semester))
         this.setState({
             data: datatemp, alldata: resData, count: currisub.data.length + 1, token: token,
             curri: resCurri.data, subject: resSub,
@@ -305,7 +305,6 @@ export default class table extends Component {
                 <div className="Search_text" > ภาคการศึกษา </div>
                 <Select className="Select_semester" name="select" defaultValue={search.semester}
                     onChange={this.ChangeSearchSemester} disabled={this.state.editingKey !== ''} >
-                    <Option className="Select_semester" value="all" > ทั้งหมด </Option>
                     <Option className="Select_semester" value={1} > 1 </Option>
                     <Option className="Select_semester" value={2} > 2 </Option>
                 </Select>
@@ -464,6 +463,8 @@ export default class table extends Component {
                 ...this.state.search,
                 curr2_id: value,
             }
+        }, () => {
+            this.ButtonSearch()
         })
     };
 
@@ -473,7 +474,10 @@ export default class table extends Component {
                 ...this.state.search,
                 semester: value,
             }
+        }, () => {
+            this.ButtonSearch()
         })
+
     };
 
     ChangeInputSemester = (value) => {
@@ -544,16 +548,10 @@ export default class table extends Component {
         alldata = alldata.sort(function (a, b) { return a.subject_id - b.subject_id })
         alldata = alldata.sort(function (a, b) { return a.curr2_id - b.curr2_id })
         console.log(search)
-        if (search.semester === "all") {
-            this.setState({
-                data: alldata.filter(item => (item.curr2_id === search.curr2_id)),
-            });
-        }
-        else {
-            this.setState({
-                data: alldata.filter(item => (item.curr2_id === search.curr2_id && item.semester === search.semester)),
-            });
-        }
+        this.setState({
+            data: alldata.filter(item => (item.curr2_id === search.curr2_id && item.semester === search.semester)),
+        });
+
     };
 
     ButtonExport = () => {
