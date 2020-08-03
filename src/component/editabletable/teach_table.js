@@ -278,7 +278,7 @@ export default class table extends Component {
         }
         let tempData = resData.filter(item => (item.year === year && item.semester === semester))
         this.setState({
-            data: tempData, alldata: resData, count: resData.length + 1,
+            data: tempData, alldata: resData, count: resData.length + 1, StringResult: [],
             subject: resSub, curri: resCurri,
             search: { year: year, semester: semester, subject_id: 'all', subject_ename: '', curr2_id: 'all' },
             isLoad: false
@@ -323,7 +323,6 @@ export default class table extends Component {
 
     async DeleteData(data) {
         //convert to int 
-
         let res = await axios.delete("http://localhost:9000/API/subject_section/", {
             data: {
                 "subject_id": data.subject_id,
@@ -485,6 +484,10 @@ export default class table extends Component {
             </div>
         )
     }
+
+    // renderResult() {
+
+    // };
 
 
 
@@ -910,19 +913,27 @@ export default class table extends Component {
 
     ButtonTimeTable = async () => {
         this.setState({
-            thisTimeTable: true,
             isLoad: true
         })
-        let Data = await timetable()
+        let { DataTimeTable, StringResult } = await timetable()
+        console.log('DataTimeTable ', DataTimeTable)
+        console.log('StringResult ', StringResult)
         //console.log('test', Data)
-        if (Data === undefined) {
-            Data = []
+        if (DataTimeTable === undefined) {
+            DataTimeTable = []
         }
+        if (StringResult === undefined) {
+            StringResult = []
+        }
+        StringResult.forEach(item => { 
+            console.log(item) }
+        )
         this.setState({
-            data: Data,
-            alldata: Data,
+            data: DataTimeTable,
+            alldata: DataTimeTable,
             thisTimeTable: true,
-            isLoad: false
+            isLoad: false,
+            StringResult: StringResult
         })
     }
 
@@ -947,6 +958,11 @@ export default class table extends Component {
                             <Button onClick={this.ButtonExport} type="primary" style={{ margin: 16 }} disabled={this.state.editingKey !== ''}>
                                 Export
                             </Button>
+                        </div>
+                        <div>
+                            {this.state.thisTimeTable ? (this.state.StringResult.map(item => {
+                                return <div>{item}</div>
+                            })) : ('')}
                         </div>
                     </div>}
             </div>

@@ -2,6 +2,7 @@
 // eslint-disable-next-line no-unused-expressions
 
 const axios = require('axios');
+const { formatTimeStr } = require('antd/lib/statistic/utils');
 // import axios from 'axios'
 //Set Global variable
 var time_CurriSec = [];
@@ -72,10 +73,10 @@ async function timetable() {
     // Sort dy  priority
     uniqueSubject = uniqueSubject.sort(function (a, b) { return a.section_sum - b.section_sum });
     uniqueSubject = uniqueSubject.sort(function (a, b) { return getPriority(a.subject_id) - getPriority(b.subject_id) });
+    uniqueSubject = SortuniqueSubject(uniqueSubject)
     console.log('uniqueSubject ');
     console.log(uniqueSubject);
-
-
+    
     let DataNotime = [];
     //let result = TimeTableRe(0);
     for (let i = 0; i < uniqueSubject.length; i++) {
@@ -154,6 +155,8 @@ async function timetable() {
 
         // Set for prioty 1 '01006010' '01006011' '01006030' '01006031'
         if (getPriority(uniqueSubject[i].subject_id) === 1) {
+
+            // continue
             for (let j = 0; j < DataSubjectSec.length; j++) {
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
 
@@ -169,18 +172,7 @@ async function timetable() {
                 }
 
                 if (DataSubjectSec[j].teach_time === null) {
-                    // if (DataSubjectSec[j].subject_id === '01006030') {
-                    //     DataSubjectSec[j].teach_time = '08:45:00'
-                    //     DataSubjectSec[j].teach_time2 = '12:00:00'
-                    //     DataSubjectSec[j].teach_day = 'fri'
-                    //     let time_CurriSec_index = time_CurriSec.findIndex(item => (DataSubjectSec[j].subject_section === item.curr2_section))
-                    //     if (time_CurriSec_index > -1) {
-                    //         time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
-                    //         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                    //             `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
-                    //     }
-                    //     continue
-                    // }
+           
                     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                         `to DataNotime `)
 
@@ -221,6 +213,8 @@ async function timetable() {
 
         // Set for prioty 2 '01006015' 
         if (getPriority(uniqueSubject[i].subject_id) === 2) {
+
+            // continue
             if (uniqueSubject[i].lect_or_prac === 'l') {
                 let DataSubjectSecP = SubSec.filter(item => item.subject_id === uniqueSubject[i].subject_id && item.lect_or_prac === "p");
                 DataSubjectSec = DataSubjectSec.sort(function (a, b) { return a.subject_section - b.subject_section });
@@ -283,16 +277,18 @@ async function timetable() {
         }
 
         // Set for prioty 3 '01006020' '01006022' '01006024'
-        if (getPriority(uniqueSubject[i].subject_id) === 3) {
+        if (getPriority(uniqueSubject[i].subject_id) === 4) {
 
             // continue
 
+            let runAllpath = false
             let UniqueCurri = getUniqueCurri(DataCurriSec)
             let UniqueCurri2 = UniqueCurri
+            let DataCurriSec2 = DataCurriSec
             //console.log('UniqueCurri', UniqueCurri)
-            if (uniqueSubject[i].subject_id === '01006024') {
-                UniqueCurri = UniqueCurri.sort(function (a, b) { return b.curr2_id - a.curr2_id });
-            }
+            // if (uniqueSubject[i].subject_id === '01006024') {
+            //     UniqueCurri = UniqueCurri.sort(function (a, b) { return b.curr2_id - a.curr2_id });
+            // }
 
 
             //Print UniqueCurri
@@ -302,15 +298,21 @@ async function timetable() {
             })
             console.log("")
 
-            // if( uniqueSubject[i].subject_id === '01006024')
-            //     continue
+
 
             let averageCurriSec = parseInt(DataCurriSec.length / (DataSubjectSec.length))
             let avergeStudent = parseInt(SumOfStudent(DataCurriSec) / (DataSubjectSec.length))
+            let levelStudent = 45
+            let levelCurriSec = 2
             console.log(' averageCurriSec : ', averageCurriSec)
             console.log(' avergeStudent : ', avergeStudent)
             // console.log(SumOfStudent(DataCurriSec))
 
+
+            // if (uniqueSubject[i].subject_id === '01006024') {
+            //     averageCurriSec = 140
+            //     console.log(' set averageCurriSec : ', averageCurriSec)
+            // }
             let min = DataCurriSec.length
             let max = 0
             UniqueCurri.forEach(item => {
@@ -322,22 +324,18 @@ async function timetable() {
             let OldPathCurriID = [];
             let SelectPathCurriID = [];
             for (let j = 0; j < DataSubjectSec.length; j++) {
+                if (runAllpath) {
+                    break
+                }
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                 //console.log('UniqueCurri', UniqueCurri)
 
                 // UniqueCurri = UniqueCurri.sort(function (a, b) { return parseInt(a.curr2_id) - parseInt(b.curr2_id) });
-                // Print UniqueCurri
-                process.stdout.write(' UniqueCurri : ')
-                UniqueCurri.forEach(item => {
-                    process.stdout.write(item.curr2_id + ' ')
-                })
-                console.log("")
 
                 let TempDataCheck = []
                 if (DataSubjectSec[j].teach_time !== null) {
                     for (let k = 0; k < DataCurriSec.length; k++) {
                         checkOverlay = false
-
                         let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
                         //Check Overlay time Subject Section
                         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
@@ -352,12 +350,45 @@ async function timetable() {
                     }
                 }
                 else {
-                    for (let k = 0; k < DataCurriSecTemp.length; k++) {
+                    for (let k = 0; k < DataCurriSec.length; k++) {
                         TempDataCheck.push(DataCurriSec[k].curr2_section)
                     }
 
                 }
-                console.log('TempDataCheck ', TempDataCheck)
+                //console.log('TempDataCheck ', TempDataCheck)
+                let DataCurriSecTemp = []
+                if (DataSubjectSec[j].teach_time !== null) {
+                    for (let k = 0; k < DataCurriSec2.length; k++) {
+                        checkOverlay = false
+                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec2[k].curr2_section === item.curr2_section))
+                        //Check Overlay time Subject Section
+                        time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                            if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                                checkOverlay = true
+                                return;
+                            }
+                        })
+                        if (!checkOverlay) {
+                            DataCurriSecTemp.push(DataCurriSec2[k])
+                        }
+                    }
+                }
+                else {
+                    for (let k = 0; k < DataCurriSec2.length; k++) {
+                        DataCurriSecTemp.push(DataCurriSec2[k])
+                    }
+
+                }
+
+                //console.log('DataCurriSecTemp ', DataCurriSecTemp)
+                UniqueCurri = getUniqueCurri(DataCurriSecTemp)
+                // console.log('UniqueCurri ', UniqueCurri)
+                // Print UniqueCurri
+                process.stdout.write(' UniqueCurri : ')
+                UniqueCurri.forEach(item => {
+                    process.stdout.write(item.curr2_id + ' ' + item.section + ' == ')
+                })
+                console.log("")
 
                 // Find path 
                 let last = false
@@ -366,14 +397,15 @@ async function timetable() {
                 }
                 PathCurriID = [];
                 findPath(UniqueCurri, parseInt(averageCurriSec / min), parseInt(averageCurriSec / max),
-                    averageCurriSec + max, avergeStudent + (50 * max), averageCurriSec - max, avergeStudent - (50 * max), last)
+                    averageCurriSec + levelCurriSec, avergeStudent + (levelStudent * (levelCurriSec - 1)), averageCurriSec - levelCurriSec, avergeStudent - (levelStudent * levelCurriSec), last)
                 PathCurriID = PathCurriID.sort(function (a, b) { return b.student_sum - a.student_sum });
                 PathCurriID = PathCurriID.sort(function (a, b) { return b.section_sum - a.section_sum });
-                //console.log('PathCurriID', PathCurriID)
+                // console.log('PathCurriID', PathCurriID)
 
-                if (PathCurriID.length === 0) {
-                    console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
-                    StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                if (PathCurriID.length === [] || DataCurriSec2.length === 0) {
+                    console.log(`En Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                    StringResutl.push(`En Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                    SelectPathCurriID[j] = undefined
                     continue
                 }
 
@@ -385,22 +417,44 @@ async function timetable() {
                         let Index = []
                         PathCurriID.forEach(item => {
                             let check = 0
+                            let CheckSec = 0
                             for (let l = 0; l < item.path.length; l++) {
-                                if (item.path[l] === OldPathCurriID[k].path[l]) {
-                                    check++
+                                let IdInpath = item.path[l]
+                                //console.log('IdInpath ', IdInpath)
+                                let SecInID = UniqueCurri.filter(item => (item.curr2_id === IdInpath))
+                                if (SecInID.length === []) {
+                                    break
+                                }
+                                //convert to json
+                                SecInID = SecInID[0]
+                                //console.log('SecInID ', SecInID)
+                                for (let n = 0; n < SecInID.section.length; n++) {
+                                    for (let m = 0; m < OldPathCurriID[k].tempCurriSection.length; m++) {
+                                        let tempOPCS = OldPathCurriID[k].tempCurriSection[m]
+                                        //convert to json
+                                        tempOPCS = tempOPCS[0]
+
+                                        // console.log('SecInID.section[n] ',SecInID.section[n],'tempOPCS.curr2_section ',tempOPCS.curr2_section)
+                                        if (SecInID.section[n] === tempOPCS.curr2_section) {
+                                            check++
+                                        }
+                                    }
+                                    CheckSec += 1
                                 }
                             }
-                            if (check === item.path.length && check === OldPathCurriID[k].path.length) {
-                                //console.log(item,OldPathCurriID[k].path)
+                            if (check === CheckSec && check != 0) {
+                                console.log('item in oldpath', item)
                                 Index = item;
+                                // asdasd
                             }
+
                         });
                         PathCurriID = PathCurriID.filter(item => item !== Index)
                     }
                 }
                 if (PathCurriID.length === 0 && j === 0) {
-                    console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
-                    StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                    console.log(`End Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                    StringResutl.push(`End Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                     SelectPathCurriID = []
                     break
                 }
@@ -415,19 +469,20 @@ async function timetable() {
                         }
                     });
                     //console.log(lastOldPathCurriID)
-                    if (lastOldPathCurriID.length === 0) {
-                        console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                    // console.log('Before while lastOldPathCurriID ', lastOldPathCurriID)
+                    if (lastOldPathCurriID.length === []) {
+                        console.log(`EESubject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                         StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                         SelectPathCurriID = []
                         break
                     }
                     OldPathCurriID = OldPathCurriID.filter(item => (item.index_j < j))
-                    for (let k = 0; k < lastOldPathCurriID.tempUniqueCurri.length; k++) {
-                        let temp = lastOldPathCurriID.tempUniqueCurri[k]
+                    for (let k = 0; k < lastOldPathCurriID.tempCurriSection.length; k++) {
+                        let temp = lastOldPathCurriID.tempCurriSection[k]
                         // Change Array To Json
                         temp = temp[0]
-                        //console.log(temp)
-                        UniqueCurri.push({ curr2_id: temp.curr2_id, section_sum: temp.section_sum, section: temp.section, student_sum: temp.student_sum })
+                        // console.log(temp)
+                        DataCurriSec2.push(temp)
                     }
                     j = j - 2
                     continue
@@ -456,7 +511,7 @@ async function timetable() {
                             TempItem = item
                         }
                     })
-                    console.log(AbsMinSection, AbsMinStudent, PathTemp, MinSection, MinStudent)
+                    // console.log(AbsMinSection, AbsMinStudent, PathTemp, MinSection, MinStudent)
 
                     if (AbsMinSection === averageCurriSec && AbsMinStudent === avergeStudent) {
                         let lastOldPathCurriID = []
@@ -468,19 +523,24 @@ async function timetable() {
                             }
                         });
                         //console.log(lastOldPathCurriID)
-                        if (lastOldPathCurriID.length === 0) {
+                        // console.log('inloop lastOldPathCurriID ', lastOldPathCurriID)
+
+                        if (lastOldPathCurriID === []) {
                             console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                             StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                             SelectPathCurriID = []
+                            runAllpath = true
+                            j = j - 2
                             break
                         }
                         //OldPathCurriID = OldPathCurriID.filter(item => (item !== lastOldPathCurriID ))
-                        for (let k = 0; k < lastOldPathCurriID.tempUniqueCurri.length; k++) {
-                            let temp = lastOldPathCurriID.tempUniqueCurri[k]
+                        // console.log('inloop lastOldPathCurriID.tempCurriSection ', lastOldPathCurriID.tempCurriSection)
+                        for (let k = 0; k < lastOldPathCurriID.tempCurriSection.length; k++) {
+                            let temp = lastOldPathCurriID.tempCurriSection[k]
                             // Change Array To Json
                             temp = temp[0]
-                            //console.log(temp)
-                            UniqueCurri.push({ curr2_id: temp.curr2_id, section_sum: temp.section_sum, section: temp.section, student_sum: temp.student_sum })
+                            // console.log(temp)
+                            DataCurriSec2.push(temp)
                         }
                         j = j - 2
                         break
@@ -501,27 +561,27 @@ async function timetable() {
                     }
                     let checkOverlay = false
                     for (let k = 0; k < PathTemp.length; k++) {
-                        console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to curr2_id ${PathTemp[k]}`)
+                        // console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                        // `to curr2_id ${PathTemp[k]}`)
                         let UniqueCurri_index = UniqueCurri.findIndex(item => (PathTemp[k] === item.curr2_id))
                         //console.log('UniqueCurri ',UniqueCurri)
                         for (let l = 0; l < UniqueCurri[UniqueCurri_index].section.length; l++) {
 
-                            console.log(UniqueCurri[UniqueCurri_index].section[l])
+                            // console.log(UniqueCurri[UniqueCurri_index].section[l])
                             let time_CurriSec_index = time_CurriSec.findIndex(item =>
                                 (UniqueCurri[UniqueCurri_index].section[l] === item.curr2_section))
 
                             //Check Overlay time Subject Section
                             time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                                 if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-                                    console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                    // console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
                                     checkOverlay = true
                                     return;
                                 }
                             })
                             if (checkOverlay) {
-                                console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                                    `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
+                                // console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                                // `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
                                 break
                             }
                         }
@@ -532,16 +592,47 @@ async function timetable() {
                     }
 
                     if (!checkOverlay) {
-                        let tempUniqueCurri = []
+                        let tempCurriSection = []
                         for (let k = 0; k < PathTemp.length; k++) {
-                            tempUniqueCurri.push(UniqueCurri.filter(item => item.curr2_id === PathTemp[k]))
-                            UniqueCurri = UniqueCurri.filter(item => item.curr2_id !== PathTemp[k])
+                            let UniqueCurritemp = UniqueCurri.filter(item => item.curr2_id === PathTemp[k])
+                            //conver to json
+                            UniqueCurritemp = UniqueCurritemp[0]
+                            // console.log('UniqueCurritemp.section ', UniqueCurritemp.section[0])
+                            // console.log('UniqueCurritemp.section.length ', UniqueCurritemp.section.length)
+                            for (let l = 0; l < UniqueCurritemp.section.length; l++) {
+                                // console.log('UniqueCurritemp.section[l] ', UniqueCurritemp.section[l])
+                                tempCurriSection.push(DataCurriSec2.filter(item => item.curr2_section === UniqueCurritemp.section[l]))
+                                DataCurriSec2 = DataCurriSec2.filter(item => item.curr2_section !== UniqueCurritemp.section[l])
+
+                            }
+
                         }
-                        OldPathCurriID.push({ index_j: j, path: PathTemp, tempUniqueCurri: tempUniqueCurri })
+                        OldPathCurriID.push({ index_j: j, path: PathTemp, tempCurriSection: tempCurriSection })
                         console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
                             `to SelectPathCurriID Not Overlay`)
-                        //console.log(PathTemp)
-                        SelectPathCurriID[j] = PathTemp
+                        // console.log(tempCurriSection)
+                        SelectPathCurriID[j] = tempCurriSection
+                        if (j === DataSubjectSec.length - 1 && DataCurriSec2.length > 0) {
+                            let lastOldPathCurriID = []
+                            OldPathCurriID.forEach(item => {
+                                //console.log(item)
+                                if (item.index_j === j) {
+                                    //console.log(item,OldPathCurriID[k].path)
+                                    lastOldPathCurriID = item;
+                                }
+                            });
+                            //console.log(lastOldPathCurriID)
+                            // console.log('lastloop lastOldPathCurriID ', lastOldPathCurriID)
+
+                            for (let k = 0; k < lastOldPathCurriID.tempCurriSection.length; k++) {
+                                let temp = lastOldPathCurriID.tempCurriSection[k]
+                                // Change Array To Json
+                                temp = temp[0]
+                                // console.log(temp)
+                                DataCurriSec2.push(temp)
+                            }
+                            j = j - 2
+                        }
                         break
                     }
 
@@ -550,6 +641,9 @@ async function timetable() {
                     //break
                 }
 
+            }
+            if(runAllpath){
+                continue
             }
             console.log('SelectPathCurriID')
             for (let j = 0; j < DataSubjectSec.length; j++) {
@@ -562,13 +656,14 @@ async function timetable() {
                     StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have SelectPathCurriID[j]`)
                     continue
                 }
+                console.log('PathTemp ', PathTemp)
                 for (let k = 0; k < PathTemp.length; k++) {
-                    let UniqueCurri_index = UniqueCurri2.findIndex(item => (PathTemp[k] === item.curr2_id))
-                    for (let l = 0; l < UniqueCurri2[UniqueCurri_index].section.length; l++) {
-                        //console.log(UniqueCurri2[UniqueCurri_index].section[l])
-                        let temp = DataCurriSec.find(item => (UniqueCurri2[UniqueCurri_index].section[l] === item.curr2_section))
-                        tempCurri.push(temp)
-                    }
+                    let tempK = PathTemp[k]
+                    //convert to json
+                    tempK = tempK[0]
+                    let temp = DataCurriSec.find(item => (tempK.curr2_section === item.curr2_section))
+                    // console.log(temp)
+                    tempCurri.push(temp)
                 }
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                 // //Print DataCurriSec
@@ -576,7 +671,7 @@ async function timetable() {
                 // tempCurri.forEach(item => {
                 //     process.stdout.write(item.curr2_section + ' ')
                 // })
-                console.log("")
+                //console.log("")
 
                 if (DataSubjectSec[j].teach_time === null) {
                     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
@@ -599,16 +694,16 @@ async function timetable() {
         }
 
         // Set for prioty 4 '01006021' '01006023' '01006025'
-        if (getPriority(uniqueSubject[i].subject_id) === 4) {
+        if (getPriority(uniqueSubject[i].subject_id) === 3) {
             // if (uniqueSubject[i].subject_id === '01006021')
-            //continue
+            // continue
 
             //let DataCurriSec2 = DataCurriSec
             //console.log('DataCurriSec ', DataCurriSec)
-
-            if (uniqueSubject[i].subject_id === '01006025') {
-                DataCurriSec = DataCurriSec.sort(function (a, b) { return b.curr2_section - a.curr2_section });
-            }
+            let runAllpath = false
+            // if (uniqueSubject[i].subject_id === '01006025') {
+            //     DataCurriSec = DataCurriSec.sort(function (a, b) { return b.curr2_section - a.curr2_section });
+            // }
 
             let DataCurriSec2 = DataCurriSec
             //Print DataCurriSec
@@ -622,36 +717,41 @@ async function timetable() {
             let averageCurriSec = parseInt(DataCurriSec.length / (DataSubjectSec.length))
             let avergeStudent = parseInt(SumOfStudent(DataCurriSec) / (DataSubjectSec.length))
             let levelCurriSec = 2
-            let levelStudent = 50
+            let levelStudent = 30
             console.log(' averageCurriSec : ', averageCurriSec)
             console.log(' avergeStudent : ', avergeStudent)
             // console.log(SumOfStudent(DataCurriSec))
             avergeStudent = 140
             if (uniqueSubject[i].subject_id === '01006025') {
                 avergeStudent = 110
+                levelStudent = 15
             }
             console.log(' After Set avergeStudent : ', avergeStudent)
+            DataCurriSec = DataCurriSec.sort(function (a, b) { return b.curr2_section_student_amount - a.curr2_section_student_amount });
 
             let OldPathCurriSection = [];
             let SelectPathCurriSection = [];
             let lastindex_j = 0
             for (let j = 0; j < DataSubjectSec.length; j++) {
+                if (runAllpath) {
+                    break
+                }
                 console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
                 //console.log('DataCurriSec ', DataCurriSec)
 
-                //Print DataCurriSec
-                process.stdout.write(' DataCurriSec : ')
-                DataCurriSec.forEach(item => {
-                    process.stdout.write(item.curr2_section + ' ')
-                })
-                console.log("")
+                // //Print DataCurriSec
+                // process.stdout.write(' DataCurriSec : ')
+                // DataCurriSec.forEach(item => {
+                //     process.stdout.write(item.curr2_section + ' ')
+                // })
+                // console.log("")
 
                 let TempDataCheck = []
                 if (DataSubjectSec[j].teach_time !== null) {
-                    for (let k = 0; k < DataCurriSec.length; k++) {
+                    for (let k = 0; k < DataCurriSec2.length; k++) {
                         checkOverlay = false
 
-                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
+                        let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec2[k].curr2_section === item.curr2_section))
                         //Check Overlay time Subject Section
                         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                             if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
@@ -660,17 +760,42 @@ async function timetable() {
                             }
                         })
                         if (!checkOverlay) {
-                            TempDataCheck.push(DataCurriSec[k].curr2_section)
+                            TempDataCheck.push(DataCurriSec2[k].curr2_section)
                         }
                     }
                 }
                 else {
-                    for (let k = 0; k < DataCurriSecTemp.length; k++) {
-                        TempDataCheck.push(DataCurriSec[k].curr2_section)
+                    for (let k = 0; k < DataCurriSec2.length; k++) {
+                        TempDataCheck.push(DataCurriSec2[k].curr2_section)
                     }
 
                 }
-                console.log('TempDataCheck ', TempDataCheck)
+                // console.log('TempDataCheck ', TempDataCheck)
+                //continue
+                // let DataCurriSecTemp = []
+                // if (DataSubjectSec[j].teach_time !== null) {
+                //     for (let k = 0; k < DataCurriSec.length; k++) {
+                //         checkOverlay = false
+                //         let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
+                //         //Check Overlay time Subject Section
+                //         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
+                //             if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
+                //                 checkOverlay = true
+                //                 return;
+                //             }
+                //         })
+                //         if (!checkOverlay) {
+                //             DataCurriSecTemp.push(DataCurriSec[k])
+                //         }
+                //     }
+                // }
+                // else {
+                //     for (let k = 0; k < DataCurriSec.length; k++) {
+                //         DataCurriSecTemp.push(DataCurriSec[k])
+                //     }
+
+                // }
+
                 // Find path 
                 let last = false
                 if (j === DataSubjectSec.length - 1) {
@@ -678,14 +803,15 @@ async function timetable() {
                 }
                 PathCurriSection = [];
                 findPathSection(DataCurriSec, averageCurriSec + levelCurriSec, averageCurriSec - levelCurriSec,
-                    avergeStudent + (levelStudent * levelCurriSec), avergeStudent - (levelStudent * levelCurriSec), last)
+                    avergeStudent, avergeStudent - (levelStudent * levelCurriSec), last)
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.student_sum - a.student_sum });
                 PathCurriSection = PathCurriSection.sort(function (a, b) { return b.section_sum - a.section_sum });
                 // console.log('PathCurriSection', PathCurriSection)
 
-                if (PathCurriSection.length === 0) {
+                if (PathCurriSection.length === 0 && DataCurriSec.length === 0) {
                     console.log(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
                     StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} don't have path`)
+                    SelectPathCurriSection[j] = undefined
                     continue
                 }
 
@@ -698,8 +824,10 @@ async function timetable() {
                         PathCurriSection.forEach(item => {
                             let check = 0
                             for (let l = 0; l < item.path.length; l++) {
-                                if (item.path[l] === OldPathCurriSection[k].path[l]) {
-                                    check++
+                                for (let m = 0; m < OldPathCurriSection[k].path.length; m++) {
+                                    if (item.path[l] === OldPathCurriSection[k].path[m]) {
+                                        check++
+                                    }
                                 }
                             }
                             if (check === item.path.length && check === OldPathCurriSection[k].path.length) {
@@ -715,24 +843,27 @@ async function timetable() {
                     let lastOldPathCurriSection = []
                     OldPathCurriSection.forEach(item => {
                         //console.log(item)
-                        if (item.index_j === lastindex_j) {
+                        if (item.index_j === j - 1) {
                             //console.log(item,OldPathCurriSection[k].path)
                             lastOldPathCurriSection = item;
                         }
                     });
-                    //console.log(lastOldPathCurriSection)
+                    // console.log('Before while lastOldPathCurriSection ', lastOldPathCurriSection)
                     if (lastOldPathCurriSection.length === 0) {
                         console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                         StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
                         SelectPathCurriSection = []
+                        runAllpath = true
+                        j = j - 2
                         break
+
                     }
-                    OldPathCurriSection = OldPathCurriSection.filter(item => (item.index_j <= j))
+                    OldPathCurriSection = OldPathCurriSection.filter(item => (item.index_j < j))
                     for (let k = 0; k < lastOldPathCurriSection.tempDataCurriSec.length; k++) {
                         let temp = lastOldPathCurriSection.tempDataCurriSec[k]
                         // Change Array To Json
-                        //temp = temp[0]
-                        console.log(temp)
+                        temp = temp[0]
+                        //console.log(temp)
                         DataCurriSec.push(temp)
                     }
                     j = j - 2
@@ -762,24 +893,32 @@ async function timetable() {
                             TempItem = item
                         }
                     })
-                    console.log(AbsMinSection, AbsMinStudent, PathTemp, MinSection, MinStudent)
+                    // console.log(AbsMinSection, AbsMinStudent, PathTemp, MinSection, MinStudent)
 
                     if (AbsMinSection === averageCurriSec && AbsMinStudent === avergeStudent) {
                         let lastOldPathCurriSection = []
                         OldPathCurriSection.forEach(item => {
                             //console.log(item)
-                            if (item.index_j === lastindex_j) {
+                            if (item.index_j === j - 1) {
                                 //console.log(item,OldPathCurriSection[k].path)
                                 lastOldPathCurriSection = item;
                             }
                         });
-                        //console.log(lastOldPathCurriSection)
+                        // console.log('inloop lastOldPathCurriSection ', lastOldPathCurriSection)
+                        if (lastOldPathCurriSection.length === 0) {
+                            console.log(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                            StringResutl.push(`Subject_id ${DataSubjectSec[j].subject_id} Can not Put Any path `)
+                            SelectPathCurriSection = []
+                            runAllpath = true
+                            j = j - 2
+                            break
+                        }
                         //OldPathCurriSection = OldPathCurriSection.filter(item => (item !== lastOldPathCurriSection ))
                         for (let k = 0; k < lastOldPathCurriSection.tempDataCurriSec.length; k++) {
                             let temp = lastOldPathCurriSection.tempDataCurriSec[k]
                             // Change Array To Json
                             temp = temp[0]
-                            console.log(temp)
+                            // console.log(temp)
                             DataCurriSec.push(temp)
                         }
                         j = j - 2
@@ -791,8 +930,8 @@ async function timetable() {
                             tempDataCurriSec.push(DataCurriSec.filter(item => item.curr2_section === PathTemp[k]))
                             DataCurriSec = DataCurriSec.filter(item => item.curr2_section !== PathTemp[k])
                         }
-                        console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to SelectPathCurriSection Time Null`)
+                        // console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                        // `to SelectPathCurriSection Time Null`)
                         //console.log(PathTemp)
                         OldPathCurriSection.push({ index_j: j, path: PathTemp, tempDataCurriSec: tempDataCurriSec })
                         SelectPathCurriSection[j] = PathTemp
@@ -801,14 +940,18 @@ async function timetable() {
                     let checkOverlay = false
                     let checkOverlayWithPrioty0 = false
                     for (let k = 0; k < PathTemp.length; k++) {
-                        console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to curr2_section ${PathTemp[k]}`)
+                        // console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                        //     `to curr2_section ${PathTemp[k]}`)
 
                         let time_CurriSec_index = time_CurriSec.findIndex(item => (PathTemp[k] === item.curr2_section))
+                        // if (j === 0) {
+                        //     checkOverlay = true
+                        //     break
+                        // }
                         //Check Overlay time Subject Section
                         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                             if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-                                console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                //console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
                                 if (getPriority(item.subject_id) === 0) {
                                     checkOverlayWithPrioty0 = true
                                 }
@@ -817,8 +960,8 @@ async function timetable() {
                             }
                         })
                         if (checkOverlay) {
-                            console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                                `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
+                            // console.log(` => Overlay ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                            // `in curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
                             break
                         }
                     }
@@ -834,11 +977,12 @@ async function timetable() {
                             DataCurriSec = DataCurriSec.filter(item => item.curr2_section !== PathTemp[k])
                         }
                         OldPathCurriSection.push({ index_j: j, path: PathTemp, tempDataCurriSec: tempDataCurriSec })
-                        console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                            `to SelectPathCurriSection Not Overlay`)
+                        // console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                        //     `to SelectPathCurriSection Not Overlay`)
                         //console.log(PathTemp)
                         SelectPathCurriSection[j] = PathTemp
                         lastindex_j = j
+                        // console.log('lastindex_j ', lastindex_j)
                         break
                     }
 
@@ -847,6 +991,9 @@ async function timetable() {
                     //break
                 }
 
+            }
+            if(runAllpath){
+                continue
             }
             console.log('SelectPathCurriSection')
             for (let j = 0; j < DataSubjectSec.length; j++) {
@@ -896,6 +1043,8 @@ async function timetable() {
 
         // Set for prioty 5 '01006012'
         if (getPriority(uniqueSubject[i].subject_id) === 5) {
+
+            // continue
             if (uniqueSubject[i].lect_or_prac === 'l') {
                 let DataSubjectSecP = SubSec.filter(item => item.subject_id === uniqueSubject[i].subject_id && item.lect_or_prac === "p");
                 DataSubjectSec = DataSubjectSec.sort(function (a, b) { return a.subject_section - b.subject_section });
@@ -903,7 +1052,7 @@ async function timetable() {
 
                 let MaxAmount = 40
                 let LevelAmount = 10
-                let DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return a.curr2_section - b.curr2_section });
+                let DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return b.curr2_section_student_amount - a.curr2_section_student_amount });
                 // DataCurriSecTemp = DataCurriSecTemp.sort(function (a, b) { return b.curr2_section_student_amount - a.curr2_section_student_amount });
                 // DataCurriSecTemp = DataCurriSecTemp.sort(function (a, b) { return a.curr2_section_student_amount - b.curr2_section_student_amount });
                 // DataCurriSecTemp = DataCurriSec.sort(function (a, b) { return a.curr2_id - b.curr2_id });
@@ -979,37 +1128,34 @@ async function timetable() {
                         let index_temp = TempDataCheck.findIndex(item => (item === AmountPerSec[j].curr2_section[0].curr2_section))
                         console.log('index_temp ', index_temp)
                         if (index_temp === -1) {
-
                             let index_ = DataCurriSecTemp.findIndex(item => (item.curr2_section === AmountPerSec[j].curr2_section[0].curr2_section))
                             if (index_ > -1) {
-                                console.log('Before AmountPerSec[j].curr2_section[0].curr2_section ', AmountPerSec[j].curr2_section[0].curr2_section)
-
                                 DataCurriSecTemp[index_].curr2_section_student_amount += AmountPerSec[j].amount
                                 AmountPerSec[j].amount = 0
                                 AmountPerSec[j].curr2_section = []
+                                DataCurriSecTemp = DataCurriSecTemp.sort(function (a, b) { return b.curr2_section_student_amount - a.curr2_section_student_amount });
                             }
                         }
                     }
                     for (let k = 0; k < DataCurriSecTemp.length; k++) {
                         //console.log('DataCurriSecTemp', DataCurriSecTemp[k])
-
                         if (DataCurriSecTemp[k].curr2_section_student_amount === 0) {
                             continue
                         }
                         checkOverlay = false
                         if (DataSubjectSec[j].teach_time !== null) {
-                            console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-                                `to curr2_section ${DataCurriSecTemp[k].curr2_section}`)
+                            // console.log(` => Check ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
+                            //     `to curr2_section ${DataCurriSecTemp[k].curr2_section}`)
                             let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSecTemp[k].curr2_section === item.curr2_section))
                             //Check Overlay time Subject Section
                             time_CurriSec[time_CurriSec_index].subject.forEach(item => {
                                 if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-                                    console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                    // console.log(item, 'Overlay', DataSubjectSec[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
                                     checkOverlay = true
                                     return;
                                 }
                                 if (CheckTimeOverlay(item, DataSubjectSecP[j]) === -1) {
-                                    console.log(item, 'Overlay', DataSubjectSecP[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
+                                    // console.log(item, 'Overlay', DataSubjectSecP[j], 'in', time_CurriSec[time_CurriSec_index].curr2_section)
                                     checkOverlay = true
                                     return;
                                 }
@@ -1020,12 +1166,12 @@ async function timetable() {
                                 continue
                             }
                         }
-                        console.log('Amount ', AmountPerSec[j], ' j ', j, 'csa ', DataCurriSecTemp[k].curr2_section_student_amount, ' curr2_section ', DataCurriSecTemp[k].curr2_section)
+                        // console.log('Amount ', AmountPerSec[j], ' j ', j, 'csa ', DataCurriSecTemp[k].curr2_section_student_amount, ' curr2_section ', DataCurriSecTemp[k].curr2_section)
                         if (AmountPerSec[j].amount === 0) {
                             isAll = false
                             let curr2_section = DataCurriSecTemp[k].curr2_section
                             if (DataCurriSecTemp[k].curr2_section_student_amount >= MaxAmount - LevelAmount) {
-                                
+
                                 if (DataCurriSecTemp[k].curr2_section_student_amount > MaxAmount) {
                                     AmountPerSec[j].amount = MaxAmount
                                     AmountPerSec[j].curr2_section.push({ curr2_section })
@@ -1051,14 +1197,14 @@ async function timetable() {
 
                         if (AmountPerSec[j].amount >= MaxAmount - LevelAmount && AmountPerSec[j].amount <= MaxAmount) {
                             isAll = false
-                            console.log('Amount ~ max')
+                            // console.log('Amount ~ max')
                             SelectPathCurriSec[j] = AmountPerSec[j].curr2_section
                             break
                         }
 
                         if (AmountPerSec[j].amount + DataCurriSecTemp[k].curr2_section_student_amount >= MaxAmount - LevelAmount) {
                             isAll = false
-                            console.log('Amount + c s a > max')
+                            // console.log('Amount + c s a > max')
                             let curr2_section = DataCurriSecTemp[k].curr2_section
                             // let curr2_section2 = AmountPerSec[j].curr2_section[0]
                             // if()
@@ -1076,11 +1222,11 @@ async function timetable() {
                     }
 
                     if (checkOverlay) {
-                        console.log('inOverlay Amount ', AmountPerSec[j], ' j ', j,)
+                        // console.log('inOverlay Amount ', AmountPerSec[j], ' j ', j,)
 
                         AmountPerSec[j + 1] = AmountPerSec[j]
                         if (AmountPerSec[j].amount !== 0) {
-                            console.log('test AmountPerSec[j].curr2_section ', AmountPerSec[j].curr2_section[0].curr2_section)
+                            // console.log('test AmountPerSec[j].curr2_section ', AmountPerSec[j].curr2_section[0].curr2_section)
                             // let index_DataCurriSec = DataCurriSecTemp.findIndex(item => { item.curr2_section === AmountPerSec[j].curr2_section[0] })
                             // if (index_DataCurriSec > -1) {
 
@@ -1096,15 +1242,16 @@ async function timetable() {
                 }
 
                 let isNotEmpty = false
+                let temCsec = []
                 for (let k = 0; k < DataCurriSecTemp.length; k++) {
                     if (DataCurriSecTemp[k].curr2_section_student_amount > 0) {
                         isNotEmpty = true
-                        break
+                        temCsec.push(DataCurriSecTemp[k].curr2_section)
                     }
                 }
                 if (isNotEmpty) {
-                    console.log(`Subject_id ${uniqueSubject[i].subject_id} Have Some Amount Student`)
-                    StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} Have Some Amount Student`)
+                    console.log(`Subject_id ${uniqueSubject[i].subject_id} Have Section Not in Subject ${temCsec} `)
+                    StringResutl.push(`Subject_id ${uniqueSubject[i].subject_id} Have Section Not in Subject ${temCsec} `)
                 }
                 console.log('SelectPathCurriSec')
                 for (let j = 0; j < DataSubjectSec.length; j++) {
@@ -1148,103 +1295,8 @@ async function timetable() {
             continue
         }
 
-        // let checkRe = 0;
-        // let OldPath = [];
-        // for (let j = 0; j < DataSubjectSec.length; j++) {
-        //     console.log(`----DataSubjectSec ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section}----`)
-
-        //     if (DataCurriSec.length === 0) {
-        //         console.log('Do not have any CurriSec')
-        //         continue
-        //     }
-
-        //     if (checkRe === 1) {
-
-        //     }
-        //     //Find Curri Section is not overlay for this Subject Section
-        //     let CheckedDataSubjectSec = [];
-        //     for (let k = 0; k < DataCurriSec.length; k++) {
-        //         let time_CurriSec_index = time_CurriSec.findIndex(item => (DataCurriSec[k].curr2_section === item.curr2_section))
-        //         let check = 1
-        //         time_CurriSec[time_CurriSec_index].subject.forEach(item => {
-        //             if (CheckTimeOverlay(item, DataSubjectSec[j]) === -1) {
-        //                 check = -1
-        //             return;
-        //         }
-        //     })
-        //     if (check === 1) {
-        //         CheckedDataSubjectSec.push(DataCurriSec[k])
-        //     }
-
-        // }
-
-        // //Print 
-        // PrintCheckedDataSubjectSec(CheckedDataSubjectSec)
-
-        // //don't have any curri to add in this subject section
-        // if (CheckedDataSubjectSec.length === 0) {
-        //     console.log("No Curri_Sec can push in this Sub_Sec")
-        //     //j--
-        //     continue
-        // }
-
-
-
-        // // 1 by 1
-        // if (DataSubjectSec[j].subject_section_student_amount === null) {
-        //     let time_CurriSec_index = time_CurriSec.findIndex(item => (CheckedDataSubjectSec[0].curr2_section === item.curr2_section))
-        //     time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
-        //     DataCurriSec = DataCurriSec.filter(item => item.curr2_section !== CheckedDataSubjectSec[0].curr2_section)
-        //     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-        //         `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
-        //     continue
-        // }
-
-        // Find path for min Num
-        // allpath = [];
-        //SumOfNum(CheckedDataSubjectSec, CheckedDataSubjectSec.length)
-        //console.log('allpath', allpath)
-
-
-        // let Max = DataSubjectSec[j].subject_section_student_amount;
-        // let dataPath = [];
-        // for (let k = 0; k < allpath.length; k++) {
-        //     if (Max >= allpath[k].sum) {
-        //         dataPath.push(allpath[k])
-        //     }
-        // }
-
-        // let min = DataSubjectSec[j].subject_section_student_amount;
-        // let dataPath = [];
-        // for (let k = 0; k < allpath.length; k++) {
-        //     let NumOfStuMin = DataSubjectSec[j].subject_section_student_amount - allpath[k].sum
-        //     if (NumOfStuMin >= 0 && min > NumOfStuMin) {
-        //         console.log('NumOfStuMin', NumOfStuMin)
-        //         min = NumOfStuMin
-        //         dataPath = allpath[k]
-        //     }
-        // }
-        // console.log(dataPath)
-        // if (dataPath.length === 0)
-        //     continue
-        // for (let k = 0; k < dataPath[0].path.length; k++) {
-        //     console.log(dataPath[0].path[k])
-        //     let time_CurriSec_index = time_CurriSec.findIndex(item => (dataPath[0].path[k] === item.curr2_section))
-        //     time_CurriSec[time_CurriSec_index].subject.push(DataSubjectSec[j])
-        //     DataCurriSec = DataCurriSec.filter(item => item.curr2_section !== dataPath[0].path[k])
-        //     console.log(` => Add ${DataSubjectSec[j].subject_id} Section ${DataSubjectSec[j].subject_section} ` +
-        //         `to curr2_section ${time_CurriSec[time_CurriSec_index].curr2_section}`)
-
-        // }
-
-
     }
-    //     console.log('')
-    //     if (DataCurriSec.length > 0) {
-    //         console.log("Have DataCurriSec is not in DataSubSec")
-    //     }    
-
-    // }
+  
 
     DataNotime = DataNotime.sort(function (a, b) { return b.SubjectSec[0].subject_id - a.SubjectSec[0].subject_id });
 
@@ -1325,7 +1377,7 @@ function findPathSection(data, max, min, student_break, student_break2, last) {
 
 function findPathSectionRe(tempdata, num, section_sum, student_sum, path, student_break, student_break2) {
     if (num === 0) {
-        if (student_sum >= student_break || student_sum <= student_break2) {
+        if (student_sum > student_break || student_sum < student_break2) {
             return
         }
         let datatemp = PathCurriSection.filter(item => item.section_sum === section_sum && item.student_sum === student_sum);
@@ -1587,35 +1639,6 @@ function AddDataTimeTable(time_CurriSec) {
     console.log("------------ END ADD DATA TIME TABLE ------------\n")
 }
 
-function AddDataTimeTable(time_CurriSec) {
-    console.log("------------ ADD DATA TIME TABLE ------------")
-    for (let i = 0; i < time_CurriSec.length; i++) {
-        let thisData = time_CurriSec[i];
-        //process.stdout.write(`  curr2_id ${thisData.curr2_id} curr2_section ${thisData.curr2_section}\n`)
-        for (let j = 0; j < thisData.subject.length; j++) {
-            let thisData2 = thisData.subject[j]
-            // process.stdout.write(`    Subject ${thisData2.subject_id} Section ${thisData2.subject_section} `)
-            // process.stdout.write(`Day ${thisData2.teach_day} Time ${thisData2.teach_time} to ${thisData2.teach_time2} L_P ${thisData2.lect_or_prac}\n`)
-            DataTimeTable.push({
-                "subject_id": thisData2.subject_id,
-                "subject_section": thisData2.subject_section,
-                "curr2_section": thisData.curr2_section,
-                "teach_time": thisData2.teach_time,
-                "semester": semester,
-                "year": year,
-                "curr2_id": thisData.curr2_id,
-                "teach_day": thisData2.teach_day,
-                "teach_time2": thisData2.teach_time2,
-                "lect_or_prac": thisData2.lect_or_prac,
-                "break_time": thisData2.break_time
-            })
-        }
-        //console.log('')
-    }
-    DataTimeTable = SortAllData(DataTimeTable)
-    console.log("------------ END ADD DATA TIME TABLE ------------\n")
-}
-
 function PrintDataTimeTable(uniqueSubject) {
     console.log("------------ DATA TIME TABLE ------------")
     uniqueSubject = uniqueSubject.sort(function (a, b) { return a.subject_id - b.subject_id });
@@ -1677,7 +1700,6 @@ function getUniqueCurri(CurriSec) {
     return unique_Curri;
 }
 
-
 function getTime_CurriSec(currisec) {
     var time_CurriSec = []
     currisec.forEach(item => {
@@ -1699,11 +1721,11 @@ function getPriority(subject_id) {
     }
     if (subject_id === '01006020' || subject_id === '01006022'
         || subject_id === '01006024') {
-        return 3
+        return 4
     }
     if (subject_id === '01006021' || subject_id === '01006023'
         || subject_id === '01006025') {
-        return 4
+        return 3
     }
     if (subject_id === '01006012') {
         return 5
@@ -1752,6 +1774,30 @@ function DataNotimeSort(DataNotime) {
 
     }
     return DataNotime
+}
+
+function SortuniqueSubject(uniqueSubject) {
+    for (let i = 0; i < uniqueSubject.length; i++) {
+        for (let j = i + 1; j < uniqueSubject.length; j++) {
+            if (getPriority(uniqueSubject[i].subject_id) > getPriority(uniqueSubject[j].subject_id)) {
+                let Temp = uniqueSubject[i]
+                uniqueSubject[i] = uniqueSubject[j]
+                uniqueSubject[j] = Temp
+            }
+        }
+    }
+    for (let i = 0; i < uniqueSubject.length; i++) {
+        for (let j = i + 1; j < uniqueSubject.length; j++) {
+            if (getPriority(uniqueSubject[i].subject_id) === getPriority(uniqueSubject[j].subject_id)) {
+                if (uniqueSubject[i].section_sum > uniqueSubject[j].section_sum) {
+                    let Temp = uniqueSubject[i]
+                    uniqueSubject[i] = uniqueSubject[j]
+                    uniqueSubject[j] = Temp
+                }
+            }
+        }
+    }
+    return uniqueSubject
 }
 
 function findTimeSlot(Data) {
